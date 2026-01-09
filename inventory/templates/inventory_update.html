@@ -1,0 +1,177 @@
+<!-- item_update.html -->
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Editar {{ object.name }} - SGS 1º BAvEx{% endblock %}
+
+{% block extra_css %}
+<link href="{% static 'css/inventory_update.css' %}" rel="stylesheet">
+{% endblock %}
+
+{% block content %}
+<!-- Page Header -->
+<div class="page-header">
+    <div class="d-flex justify-content-between align-items-center">
+        <div>
+            <h1 class="fw-bold mb-2">
+                <i class="bi bi-pencil-square me-3"></i>Editar Item em Estoque
+            </h1>
+            <p class="text-muted mb-0">Atualize as informações do item em estoque selecionado</p>
+        </div>
+        <div class="d-flex gap-2">
+            <a href="{% url 'inventory_detail' object.id %}" class="btn btn-info">
+                <i class="bi bi-eye me-2"></i>Ver Detalhes
+            </a>
+            <a href="{% url 'inventory_list' %}" class="btn btn-outline-secondary">
+                <i class="bi bi-arrow-left me-2"></i>Voltar
+            </a>
+        </div>
+    </div>
+</div>
+
+<!-- Current Item Info -->
+<div class="item-info mb-4">
+    <div class="d-flex align-items-center">
+        <i class="bi bi-info-circle me-2"></i>
+        <strong>Editando:</strong>
+        <span class="ms-2">{{ object.item.name }} (MPN: {{ object.item.mpn }})</span>
+    </div>
+</div>
+
+<!-- Form -->
+<div class="form-container">
+    <div class="form-header">
+        <div class="d-flex align-items-center">
+            <i class="bi bi-pencil-square me-3 fs-1"></i>
+            <div>
+                <h3 class="mb-1">Editar Informações</h3>
+                <p class="mb-0 opacity-75">Modifique os campos necessários</p>
+            </div>
+        </div>
+    </div>
+    
+    <div class="form-body">
+        <form method="post" novalidate>
+            {% csrf_token %}
+            
+            {% if form.errors %}
+                <div class="alert alert-danger border-0 mb-4" style="background: rgba(220, 53, 69, 0.1); border-left: 4px solid #dc3545 !important;">
+                    <i class="bi bi-exclamation-triangle me-2"></i>
+                    <strong>Erro no formulário:</strong>
+                    <ul class="mb-0 mt-2">
+                        {% for field in form %}
+                            {% for error in field.errors %}
+                                <li>{{ field.label }}: {{ error }}</li>
+                            {% endfor %}
+                        {% endfor %}
+                    </ul>
+                </div>
+            {% endif %}
+            
+            <div class="row">
+
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label class="form-label required-field">{{ form.kanban.label }}</label>
+                        {{ form.kanban }}
+                        <small class="form-text text-muted">Item de Kanban</small>
+                    </div>
+                </div>
+                
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label class="form-label required-field">{{ form.location.label }}</label>
+                        {{ form.location }}
+                        <small class="form-text text-muted">Localização do item</small>
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label class="form-label">{{ form.serial_number.label }}</label>
+                        {{ form.serial_number }}
+                        <small class="form-text text-muted"><strong>ATENÇÃO: Se SN for inserido, as quantidades serão pré-definidas para '1'</strong></small>
+                    </div>
+                </div>
+            </div>
+            
+            {% if object.serial_number %}
+            {% else %}
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label class="form-label required-field disabled">{{ form.quantity.label|default_if_none:"1"}}</label>
+                        {{ form.quantity }}
+                        <small class="form-text text-muted">Quantidade atual em estoque</small>
+                    </div>
+                </div>
+                
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label class="form-label required-field">{{ form.minimum_quantity.label|default_if_none:"1" }}</label>
+                        {{ form.minimum_quantity }}
+                        <small class="form-text text-muted">Quantidade mínima recomendada</small>
+                    </div>
+                </div>
+            </div>
+
+            {% endif %}
+            
+            <div class="form-group">
+                <label class="form-label required-field">{{ form.expiration_date.label }}</label>
+                {{ form.expiration_date }}
+                <small class="form-text text-muted">Data de validade do item</small>
+            </div>
+            
+            <!-- Action Buttons -->
+            <div class="d-flex justify-content-between align-items-center pt-4 mt-4 border-top border-secondary">
+                <a href="{% url 'inventory_list' %}" class="btn btn-secondary px-4">
+                    <i class="bi bi-x-lg me-2"></i>Cancelar
+                </a>
+                <div class="d-flex gap-2">
+                    <a href="{% url 'inventory_detail' object.id %}" class="btn btn-info px-4">
+                        <i class="bi bi-eye me-2"></i>Ver Detalhes
+                    </a>
+                    <button type="submit" class="btn btn-warning px-4">
+                        <i class="bi bi-check-lg me-2"></i>Salvar Alterações
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Array com os nomes dos campos que você quer desabilitar
+    const fieldsToDisable = [
+        'quantity',
+        'item',
+        // Adicione mais campos aqui conforme necessário
+    ];
+    
+    // Função para desabilitar um campo
+    function disableField(fieldName) {
+        const field = document.querySelector(`[name="${fieldName}"]`);
+        if (field) {
+            field.disabled = true;
+            field.readOnly = true;
+            field.style.backgroundColor = 'rgba(255, 255, 255, 0.05)';
+            field.style.cursor = 'not-allowed';
+            field.style.opacity = '0.6';
+            field.style.borderColor = 'rgba(255, 255, 255, 0.2)';
+            field.title = 'Este campo foi desabilitado automaticamente';
+        }
+    }
+    
+    // Desabilitar todos os campos da lista
+    fieldsToDisable.forEach(fieldName => {
+        disableField(fieldName);
+    });
+});
+</script>
+
+
+
+
+{% endblock %}

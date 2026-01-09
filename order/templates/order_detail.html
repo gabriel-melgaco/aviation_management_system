@@ -1,0 +1,442 @@
+<!-- order_detail.html -->
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Pedido {{ object.order_number }}/{{ object.order_year }} - Detalhes{% endblock %}
+
+{% block extra_css %}
+<link href="{% static 'css/order_detail.css' %}" rel="stylesheet">
+{% endblock %}
+
+{% block content %}
+<!-- Page Header -->
+<div class="page-header">
+    <div class="d-flex justify-content-between align-items-center">
+        <div>
+            <h1 class="fw-bold mb-2">
+                <i class="bi bi-receipt-cutoff me-3"></i>Detalhes do Pedido
+            </h1>
+            <p class="text-muted mb-0">Informações completas do pedido e seus itens</p>
+        </div>
+        <div class="d-flex gap-2">
+            {% if perms.order.change_order %}
+            <a href="{% url 'order_update' object.id %}" class="btn btn-warning">
+                <i class="bi bi-pencil-fill me-2"></i>Editar
+            </a>
+            {% endif %}
+            <a href="{% url 'order_list' %}" class="btn btn-outline-secondary">
+                <i class="bi bi-arrow-left me-2"></i>Voltar
+            </a>
+        </div>
+    </div>
+</div>
+
+<!-- Order Details Card -->
+<div class="detail-card">
+    <div class="detail-header">
+        <div class="d-flex align-items-center justify-content-between">
+            <div class="d-flex align-items-center">
+                <div class="me-4" style="width: 70px; height: 70px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 12px; display: flex; align-items: center; justify-content: center;">
+                    <i class="bi bi-receipt display-4" style="color: white;"></i>
+                </div>
+                <div>
+                    <h2 class="mb-1" style="font-size: 1.75rem; font-weight: 700;">
+                        Pedido Nº {{ object.order_number }}/{{ object.order_year }}
+                    </h2>
+                    <div class="d-flex gap-3 align-items-center">
+                        <!-- Status Badge -->
+                        <span class="badge badge-status {{ object.status|lower }}" style="padding: 0.5rem 1rem; font-size: 0.875rem;">
+                            {% if object.status == 'NOT' %}
+                                <i class="bi bi-send-slash me-1"></i>{{ object.get_status_display }}
+                            {% elif object.status == 'OPEN' %}
+                                <i class="bi bi-unlock-fill me-1"></i>{{ object.get_status_display }}
+                            {% elif object.status == 'OPEN2' %}
+                                <i class="bi bi-hourglass-split me-1"></i>{{ object.get_status_display }}
+                            {% elif object.status == 'CLOSE' %}
+                                <i class="bi bi-check-circle-fill me-1"></i>{{ object.get_status_display }}
+                            {% elif object.status == 'CLOSE2' %}
+                                <i class="bi bi-x-circle-fill me-1"></i>{{ object.get_status_display }}
+                            {% elif object.status == 'CANCEL' %}
+                                <i class="bi bi-slash-circle-fill me-1"></i>{{ object.get_status_display }}
+                            {% endif %}
+                        </span>
+                        
+                        <!-- Type Badge -->
+                        <span class="badge badge-type {{ object.order_type|lower }}" style="padding: 0.5rem 1rem; font-size: 0.875rem;">
+                            {% if object.order_type == 'RMS' %}
+                                <i class="bi bi-wrench-adjustable me-1"></i>
+                            {% else %}
+                                <i class="bi bi-tools me-1"></i>
+                            {% endif %}
+                            {{ object.order_type }}
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="detail-body">
+        <!-- Informações Principais -->
+        <div class="section-title">
+            <i class="bi bi-info-circle-fill"></i>
+            Informações do Pedido
+        </div>
+        
+        <div class="info-grid">
+            <div class="info-item">
+                <div class="info-label">
+                    <i class="bi bi-calendar3"></i>
+                    Data do Pedido
+                </div>
+                <div class="info-value">
+                    {{ object.order_date|date:"d/m/Y"|default:"Não informada" }}
+                </div>
+            </div>
+            
+            <div class="info-item">
+                <div class="info-label">
+                    <i class="bi bi-building"></i>
+                    Solicitante
+                </div>
+                <div class="info-value">
+                    {{ object.get_requester_display|default:"Não informado" }}
+                </div>
+            </div>
+            
+            <div class="info-item">
+                <div class="info-label">
+                    <i class="bi bi-person-badge"></i>
+                    Operador
+                </div>
+                <div class="info-value">
+                    {{ object.operator|default:"Não informado" }}
+                </div>
+            </div>
+            
+            <div class="info-item">
+                <div class="info-label">
+                    <i class="bi bi-calendar-range"></i>
+                    Ano do Pedido
+                </div>
+                <div class="info-value">
+                    {{ object.order_year|default:"Não informado" }}
+                </div>
+            </div>
+        </div>
+        
+        <!-- Observações -->
+        {% if object.notes %}
+        <div class="section-title">
+            <i class="bi bi-chat-left-text-fill"></i>
+            Observações
+        </div>
+        <div class="info-item" style="grid-column: 1 / -1;">
+            <div class="info-value" style="white-space: pre-wrap; font-weight: 400; line-height: 1.6;">
+                {{ object.notes }}
+            </div>
+        </div>
+        {% endif %}
+        
+        <!-- Metadados -->
+        <div class="section-title mt-4">
+            <i class="bi bi-clock-history"></i>
+            Informações do Sistema
+        </div>
+        
+        <div class="info-grid">
+            <div class="info-item">
+                <div class="info-label">
+                    <i class="bi bi-person-plus"></i>
+                    Criado por
+                </div>
+                <div class="info-value">
+                    {{ object.created_by.username|default:"Sistema" }}
+                </div>
+            </div>
+            
+            <div class="info-item">
+                <div class="info-label">
+                    <i class="bi bi-calendar-plus"></i>
+                    Criado em
+                </div>
+                <div class="info-value">
+                    {{ object.created_at|date:"d/m/Y H:i" }}
+                </div>
+            </div>
+            
+            <div class="info-item">
+                <div class="info-label">
+                    <i class="bi bi-person-gear"></i>
+                    Atualizado por
+                </div>
+                <div class="info-value">
+                    {{ object.updated_by.username|default:"—" }}
+                </div>
+            </div>
+            
+            <div class="info-item">
+                <div class="info-label">
+                    <i class="bi bi-calendar-check"></i>
+                    Última atualização
+                </div>
+                <div class="info-value">
+                    {{ object.updated_at|date:"d/m/Y H:i" }}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Order Items Section -->
+<div class="detail-card">
+    <div class="detail-header">
+        <div class="d-flex justify-content-between align-items-center w-100">
+            <div class="section-title mb-0">
+                <i class="bi bi-list-check"></i>
+                Itens do Pedido
+                <span class="badge bg-primary ms-2" style="font-size: 1rem;">{{ order_items.count }}</span>
+            </div>
+            {% if perms.order.add_orderitem %}
+            <a href="{% url 'order_item_create' object.id %}" class="btn btn-success">
+                <i class="bi bi-plus-circle-fill me-2"></i>Adicionar Item
+            </a>
+            {% endif %}
+        </div>
+    </div>
+    
+    <div class="detail-body">
+        {% if order_items %}
+            {% for item in order_items %}
+            <div class="item-card">
+                <div class="item-header">
+                    <div>
+                        <h5 style="margin: 0; color: #667eea; font-weight: 700;">
+                            <i class="bi bi-box-seam me-2"></i>
+                            {% if item.inventory_item %}
+                                {{ item.inventory_item.item.name }}
+                            {% elif item.item_item %}
+                                {{ item.item_item.name }}
+                            {% else %}
+                                Item não especificado
+                            {% endif %}
+                        </h5>
+                        {% if item.inventory_item %}
+                        <small style="color: rgba(255, 255, 255, 0.6);">
+                            MPN: {{ item.inventory_item.item.mpn }}
+                        </small>
+                        {% elif item.item_item %}
+                        <small style="color: rgba(255, 255, 255, 0.6);">
+                            MPN: {{ item.item_item.mpn }}
+                        </small>
+                        {% endif %}
+                    </div>
+                    <div class="d-flex gap-2 align-items-center flex-wrap">
+                        <!-- Service Type Badge -->
+                        {% if item.service_type %}
+                        <span class="badge-service {{ item.service_type|lower }}">
+                            {% if item.service_type == 'RUSH' %}
+                                <i class="bi bi-lightning-fill me-1"></i>
+                            {% elif item.service_type == 'AOG' %}
+                                <i class="bi bi-exclamation-triangle-fill me-1"></i>
+                            {% else %}
+                                <i class="bi bi-calendar-check-fill me-1"></i>
+                            {% endif %}
+                            {{ item.service_type }}
+                        </span>
+                        {% endif %}
+                        
+                        <!-- Quantity Badge -->
+                        <span class="badge bg-info" style="font-size: 1rem; padding: 0.5rem 0.875rem;">
+                            <i class="bi bi-hash"></i> Qty: {{ item.quantity }}
+                        </span>
+                        
+                        <!-- Action Buttons -->
+                        <div class="d-flex gap-1 ms-2">
+                            {% if perms.order.change_orderitem %}
+                            <a href="{% url 'order_item_update' item.pk %}" 
+                               class="btn btn-sm btn-warning item-action-btn" 
+                               title="Editar item"
+                               data-bs-toggle="tooltip">
+                                <i class="bi bi-pencil-fill"></i>
+                            </a>
+                            {% endif %}
+                            {% if perms.order.delete_orderitem %}
+                            <form action="{% url 'order_item_delete' item.pk %}" method="post" style="display:inline;">
+                                {% csrf_token %}
+                                <button type="submit"
+                                        class="btn btn-sm btn-danger item-action-btn"
+                                        title="Excluir item"
+                                        data-bs-toggle="tooltip"
+                                        onclick="return confirm('Tem certeza que deseja excluir este item do pedido?')">
+                                    <i class="bi bi-trash-fill"></i>
+                                </button>
+                            </form>
+                            {% endif %}
+
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="item-details">
+                    {% if item.aircraft %}
+                    <div class="info-item">
+                        <div class="info-label"><i class="bi bi-airplane"></i>Aeronave</div>
+                        <div class="info-value">{{ item.aircraft }}</div>
+                    </div>
+                    {% endif %}
+
+                    {% if item.aircraft_destination %}
+                    <div class="info-item">
+                        <div class="info-label"><i class="bi bi-bullseye"></i>Aeronave de Destino</div>
+                        <div class="info-value">{{ item.aircraft_destination }}</div>
+                    </div>
+                    {% endif %}
+
+                    {% if item.expiration_date_attended %}
+                    <div class="info-item">
+                        <div class="info-label"><i class="bi bi-bullseye"></i>Data Vencimento Atendida</div>
+                        <div class="info-value">{{ item.expiration_date_attended }}</div>
+                    </div>
+                    {% endif %}
+
+                    {% if item.sn_attended %}
+                    <div class="info-item">
+                        <div class="info-label"><i class="bi bi-bullseye"></i>SN Atendido</div>
+                        <div class="info-value">{{ item.sn_attended }}</div>
+                    </div>
+                    {% endif %}
+                    
+                    {% if item.dpe %}
+                    <div class="info-item">
+                        <div class="info-label"><i class="bi bi-file-text"></i>DPE</div>
+                        <div class="info-value">{{ item.dpe }}</div>
+                    </div>
+                    {% endif %}
+                    
+                    {% if item.eglog %}
+                    <div class="info-item">
+                        <div class="info-label"><i class="bi bi-journal-text"></i>EGLOG</div>
+                        <div class="info-value">{{ item.eglog }}</div>
+                    </div>
+                    {% endif %}
+                    
+                    {% if item.log %}
+                    <div class="info-item">
+                        <div class="info-label"><i class="bi bi-card-list"></i>LOG</div>
+                        <div class="info-value">{{ item.log }}</div>
+                    </div>
+                    {% endif %}
+                    
+                    <div class="info-item">
+                        <div class="info-label"><i class="bi bi-collection"></i>Coletado</div>
+                        <div class="info-value">
+                            <span class="collected-badge {% if item.collected %}yes{% else %}no{% endif %}">
+                                {% if item.collected %}
+                                    <i class="bi bi-check-circle-fill"></i>Sim
+                                {% else %}
+                                    <i class="bi bi-x-circle-fill"></i>Não
+                                {% endif %}
+                            </span>
+                        </div>
+                    </div>
+                    
+                    {% if item.attended_date %}
+                    <div class="info-item">
+                        <div class="info-label"><i class="bi bi-calendar-check"></i>Data de Atendimento <i class="bi bi-check-circle-fill"></i>Atendido</div>
+                        <div class="info-value">{{ item.attended_date|date:"d/m/Y" }}</div>
+
+                    </div>
+                    {% endif %}
+                    
+                    {% if item.nf_answer %}
+                    <div class="info-item">
+                        <div class="info-label"><i class="bi bi-receipt"></i>NF de Atendimento</div>
+                        <div class="info-value">{{ item.nf_answer }}</div>
+                    </div>
+                    {% endif %}
+                    
+                    {% if item.tsn_item %}
+                    <div class="info-item">
+                        <div class="info-label"><i class="bi bi-speedometer"></i>TSN do Item</div>
+                        <div class="info-value">{{ item.tsn_item }}</div>
+                    </div>
+                    {% endif %}
+                    
+                    {% if item.tso_item %}
+                    <div class="info-item">
+                        <div class="info-label"><i class="bi bi-speedometer2"></i>TSO do Item</div>
+                        <div class="info-value">{{ item.tso_item }}</div>
+                    </div>
+                    {% endif %}
+                </div>
+                
+                <!-- Additional Info -->
+                {% if item.failure_description or item.troubleshooting or item.reason or item.observation or item.notes %}
+                <div class="mt-3 pt-3" style="border-top: 1px solid rgba(255, 255, 255, 0.1);">
+                    {% if item.failure_description %}
+                    <div class="mb-2">
+                        <div class="info-label"><i class="bi bi-exclamation-circle"></i>Descrição da Falha</div>
+                        <div class="info-value" style="font-weight: 400; font-size: 0.9rem;">{{ item.failure_description }}</div>
+                    </div>
+                    {% endif %}
+                    
+                    {% if item.troubleshooting %}
+                    <div class="mb-2">
+                        <div class="info-label"><i class="bi bi-gear"></i>Ação de Troubleshooting</div>
+                        <div class="info-value" style="font-weight: 400; font-size: 0.9rem;">{{ item.troubleshooting }}</div>
+                    </div>
+                    {% endif %}
+                    
+                    {% if item.reason %}
+                    <div>
+                        <div class="info-label"><i class="bi bi-chat-square-text"></i>Motivo</div>
+                        <div class="info-value" style="font-weight: 400; font-size: 0.9rem;">{{ item.reason }}</div>
+                    </div>
+                    {% endif %}
+
+                    {% if item.observation %}
+                    <div>
+                        <div class="info-label"><i class="bi bi-chat-square-text"></i>Observação</div>
+                        <div class="info-value" style="font-weight: 400; font-size: 0.9rem;">{{ item.observation }}</div>
+                    </div>
+                    {% endif %}
+
+                    {% if item.notes %}
+                    <div>
+                        <div class="info-label"><i class="bi bi-chat-square-text"></i>Anotações</div>
+                        <div class="info-value" style="font-weight: 400; font-size: 0.9rem;">{{ item.notes }}</div>
+                    </div>
+                    {% endif %}
+                </div>
+                {% endif %}
+            </div>
+            {% endfor %}
+        {% else %}
+            <div class="empty-items">
+                <i class="bi bi-inbox"></i>
+                <h5>Nenhum item associado a este pedido</h5>
+                <p style="color: rgba(255, 255, 255, 0.5);">Adicione itens ao pedido para começar</p>
+            </div>
+        {% endif %}
+    </div>
+</div>
+<!-- Action Buttons -->
+<div class="d-flex justify-content-center gap-3 mt-4">
+    {% if perms.order.change_order %}
+    <a href="{% url 'order_update' object.id %}" class="btn btn-warning px-4">
+        <i class="bi bi-pencil-fill me-2"></i>Editar Pedido
+    </a>
+    {% endif %}
+    {% if perms.order.delete_order %}
+    <a href="{% url 'order_delete' object.id %}" 
+       class="btn btn-danger px-4"
+       onclick="return confirm('Tem certeza que deseja excluir este pedido e todos os seus itens?')">
+        <i class="bi bi-trash-fill me-2"></i>Excluir Pedido
+    </a>
+    {% endif %}
+    <a href="{% url 'order_list' %}" class="btn btn-secondary px-4">
+        <i class="bi bi-arrow-left me-2"></i>Voltar à Lista
+    </a>
+</div>
+{% endblock %}

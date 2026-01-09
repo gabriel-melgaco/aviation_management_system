@@ -1,0 +1,163 @@
+.search-container {
+background: rgba(255, 255, 255, 0.05);
+backdrop-filter: blur(10px);
+border-radius: 15px;
+padding: 20px;
+border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.stats-card {
+background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
+border: 1px solid rgba(102, 126, 234, 0.2);
+border-radius: 12px;
+backdrop-filter: blur(10px);
+}
+
+.table-container {
+background: rgba(255, 255, 255, 0.02);
+border-radius: 15px;
+box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+}
+
+.table th {
+background: linear-gradient(135deg, #0530f0 0%, #19aad6 100%);
+border: none;
+color: white;
+font-weight: 600;
+text-transform: uppercase;
+font-size: 0.85rem;
+letter-spacing: 0.5px;
+padding: 15px;
+}
+
+.table td {
+padding: 12px 15px;
+border-color: rgba(255, 255, 255, 0.1);
+vertical-align: middle;
+}
+
+.table tbody tr {
+transition: all 0.2s ease;
+}
+
+
+.btn-action {
+width: 35px;
+height: 35px;
+border-radius: 8px;
+border: none;
+margin: 0 2px;
+display: inline-flex;
+align-items: center;
+justify-content: center;
+transition: all 0.2s ease;
+}
+
+.btn-action:hover {
+transform: translateY(-2px);
+box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+}
+
+.badge-equivalent {
+background: linear-gradient(45deg, #667eea, #764ba2);
+border-radius: 20px;
+padding: 4px 12px;
+font-size: 0.75rem;
+margin: 1px;
+}
+
+.page-header {
+background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
+border-radius: 15px;
+padding: 25px;
+margin-bottom: 30px;
+border: 1px solid rgba(102, 126, 234, 0.2);
+}
+
+.search-container {
+    background: rgba(255, 255, 255, 0.05);
+    backdrop-filter: blur(10px);
+    border-radius: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    overflow: hidden;
+}
+
+.search-container .input-group {
+    display: flex;
+    align-items: stretch;
+}
+
+.search-container input[type="text"],
+.search-container select {
+    background: transparent;
+    border: none;
+    color: #ffffff;
+    padding: 0.75rem 1rem;
+    flex: 1;
+}
+
+.search-container input[type="text"]:focus,
+.search-container select:focus {
+    outline: none;
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.search-container select {
+    border-left: 1px solid rgba(255, 255, 255, 0.2);
+    border-right: 1px solid rgba(255, 255, 255, 0.2);
+    cursor: pointer;
+    min-width: 150px;
+}
+
+.search-container select option {
+    background: #2b2b2b;
+    color: #ffffff;
+    padding: 0.5rem;
+}
+
+.kanban-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.375rem;
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+    font-size: 0.75rem;
+    font-weight: 600;
+}
+
+.kanban-badge.engine {
+    background: linear-gradient(135deg, #ffc107 0%, #ff9800 100%);
+    color: #000;
+}
+
+.kanban-badge.cell {
+    background: linear-gradient(135deg, #17a2b8 0%, #138496 100%);
+    color: #fff;
+}
+
+.kanban-badge.not {
+    background: linear-gradient(135deg, #6c757d 0%, #545b62 100%);
+    color: #fff;
+}
+
+/* Active filter indicator */
+.filter-active {
+    position: relative;
+}
+
+.filter-active::after {
+    content: '';
+    position: absolute;
+    top: -4px;
+    right: -4px;
+    width: 8px;
+    height: 8px;
+    background: #0dcaf0;
+    border-radius: 50%;
+    animation: pulse-badge 2s ease-in-out infinite;
+}
+
+@keyframes pulse-badge {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.5; transform: scale(1.2); }
+}

@@ -1,0 +1,615 @@
+<!-- order_item_create.html -->
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Novo Item - Pedido {{ order.order_number }}/{{ order.order_year }} - SGS 1º BAvEx{% endblock %}
+
+{% block extra_css %}
+<link href="{% static 'css/order_item_create.css' %}" rel="stylesheet">
+
+{% endblock %}
+
+{% block content %}
+<!-- Page Header -->
+<div class="page-header">
+    <div class="d-flex justify-content-between align-items-center">
+        <div>
+            <h1 class="fw-bold mb-2">
+                <i class="bi bi-plus-circle-fill me-3"></i>Adicionar/Atualizar Item ao Pedido
+            </h1>
+            <p class="text-muted mb-0">Preencha as informações do item a ser adicionado ou atualizado</p>
+        </div>
+        <a href="{% url 'order_detail' order.id %}" class="btn btn-outline-secondary">
+            <i class="bi bi-arrow-left me-2"></i>Voltar ao Pedido
+        </a>
+    </div>
+</div>
+
+<!-- Order Info Banner -->
+<div class="order-info-banner">
+    <div class="d-flex align-items-center gap-3">
+        <i class="bi bi-receipt" style="font-size: 2rem; color: #667eea;"></i>
+        <div>
+            <h5 class="mb-1" style="color: #ffffff;">
+                Pedido Nº {{ order.order_number }}/{{ order.order_year }}
+            </h5>
+            <div class="d-flex gap-3">
+                <span style="color: rgba(255, 255, 255, 0.7);">
+                    <i class="bi bi-building me-1"></i>{{ order.get_requester_display|default:"—" }}
+                </span>
+                <span style="color: rgba(255, 255, 255, 0.7);">
+                    <i class="bi bi-tag me-1"></i>{{ order.order_type }}
+                </span>
+                <span style="color: rgba(255, 255, 255, 0.7);">
+                    <i class="bi bi-calendar3 me-1"></i>{{ order.order_date|date:"d/m/Y" }}
+                </span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Form -->
+<div class="form-container">
+    <div class="form-header">
+        <div class="d-flex align-items-center">
+            <i class="bi bi-clipboard-data-fill me-3 fs-1"></i>
+            <div>
+                <h3 class="mb-1">Informações do Item</h3>
+                <p class="mb-0 opacity-75">Preencha todos os campos obrigatórios marcados com *</p>
+            </div>
+        </div>
+    </div>
+    
+    <div class="form-body" style="padding: 2rem;">
+        <form method="post" novalidate id="orderItemForm">
+            {% csrf_token %}
+            
+            {% if form.errors %}
+                <div class="alert alert-danger" style="background: rgba(220, 53, 69, 0.15); border-left: 4px solid #dc3545;">
+                    <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                    <strong>Erro no formulário:</strong>
+                    <ul class="mb-0 mt-2">
+                        {% for field in form %}
+                            {% for error in field.errors %}
+                                <li>{{ field.label }}: {{ error }}</li>
+                            {% endfor %}
+                        {% endfor %}
+                    </ul>
+                </div>
+            {% endif %}
+            
+            <!-- SEÇÃO 1: Identificação do Item -->
+            <div class="form-section">
+                <div class="section-title">
+                    <i class="bi bi-box-seam-fill"></i>
+                    Identificação do Item
+                </div>
+                
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label class="form-label">
+                                <i class="bi bi-archive"></i>
+                                {{ form.inventory_item.label }}
+                            </label>
+                            <div class="input-group">
+                                {{ form.inventory_item }}
+                                <button type="button" class="btn btn-outline-secondary" onclick="clearInventoryItem()" title="Limpar seleção">
+                                    <i class="bi bi-x-circle"></i>
+                                </button>
+                            </div>
+                            <small class="form-text">
+                                <i class="bi bi-info-circle"></i>
+                                Selecione o item do estoque (se aplicável)
+                            </small>
+                        </div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label class="form-label">
+                                <i class="bi bi-box"></i>
+                                {{ form.item_item.label }}
+                            </label>
+                            <div class="input-group">
+                                {{ form.item_item }}
+                                <button type="button" class="btn btn-outline-secondary" onclick="clearItemItem()" title="Limpar seleção">
+                                    <i class="bi bi-x-circle"></i>
+                                </button>
+                            </div>
+                            <small class="form-text">
+                                <i class="bi bi-info-circle"></i>
+                                Ou selecione um item FMS
+                            </small>
+                        </div>
+                    </div>
+
+                </div>
+                
+                <div class="row">
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label class="form-label">
+                                <i class="bi bi-hash"></i>
+                                {{ form.operator.label }}
+                            </label>
+                            {{ form.operator }}
+                            <small class="form-text">
+                                <i class="bi bi-info-circle"></i>
+                                Nº pedido fornecido pelo EGLOG
+                            </small>
+                        </div>
+                    </div>
+
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label class="form-label required-field">
+                                <i class="bi bi-hash"></i>
+                                {{ form.quantity.label }}
+                            </label>
+                            {{ form.quantity }}
+                            <small class="form-text">
+                                <i class="bi bi-info-circle"></i>
+                                Quantidade solicitada
+                            </small>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label class="form-label required-field">
+                                <i class="bi bi-hash"></i>
+                                {{ form.quantity_supplied.label }}
+                            </label>
+                            {{ form.quantity_supplied }}
+                            <small class="form-text">
+                                <i class="bi bi-info-circle"></i>
+                                Quantidade Fornecida
+                            </small>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label class="form-label">
+                                <i class="bi bi-airplane-fill"></i>
+                                {{ form.aircraft.label }}
+                            </label>
+                            {{ form.aircraft }}
+                        </div>
+                    </div>
+
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label class="form-label">
+                                <i class="bi bi-bullseye"></i>
+                                {{ form.aircraft_destination.label }}
+                            </label>
+                            {{ form.aircraft_destination }}
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label class="form-label">
+                                <i class="bi bi-lightning-fill"></i>
+                                {{ form.service_type.label }}
+                            </label>
+                            {{ form.service_type }}
+                            <small class="form-text">
+                                <i class="bi bi-info-circle"></i>
+                                RUSH, PROG ou AOG
+                            </small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- SEÇÃO 2: Documentação -->
+            <div class="form-section">
+                <div class="section-title">
+                    <i class="bi bi-file-earmark-text-fill"></i>
+                    Documentação e Registros
+                </div>
+                
+                <div class="row">
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label class="form-label">
+                                <i class="bi bi-file-text"></i>
+                                {{ form.dpe.label }}
+                            </label>
+                            {{ form.dpe }}
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label class="form-label">
+                                <i class="bi bi-journal-text"></i>
+                                {{ form.eglog.label }}
+                            </label>
+                            {{ form.eglog }}
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-4">
+                            <div class="form-check">
+                                {{ form.log }}
+                                <label class="form-check-label" for="{{ form.log.id_for_label }}">
+                                    <i class="bi bi-box-arrow-in-down me-2"></i>
+                                    {{ form.log.label }}
+                                </label>
+                            </div>
+                </div>
+                
+                <div class="row">
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label class="form-label">
+                                <i class="bi bi-file-earmark"></i>
+                                {{ form.gmm.label }}
+                            </label>
+                            {{ form.gmm }}
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label class="form-label">
+                                <i class="bi bi-file-earmark"></i>
+                                {{ form.bms.label }}
+                            </label>
+                            {{ form.bms }}
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label class="form-label">
+                                <i class="bi bi-geo-alt"></i>
+                                {{ form.hb_destination.label }}
+                            </label>
+                            {{ form.hb_destination }}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- SEÇÃO 3: Atendimento -->
+                <div class="form-section">
+                    <div class="section-title">
+                        <i class="bi bi-check-circle-fill"></i>
+                        Informações de Atendimento
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="form-label">
+                                    <i class="bi bi-receipt"></i>
+                                    {{ form.nf_answer.label }}
+                                </label>
+                                {{ form.nf_answer }}
+                                <small class="form-text">
+                                    <i class="bi bi-info-circle"></i>
+                                    Número da nota fiscal de atendimento
+                                </small>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="form-label">
+                                    <i class="bi bi-receipt"></i>
+                                    {{ form.sn_attended.label }}  <!-- 🔧 CORRETO -->
+                                </label>
+                                {{ form.sn_attended }}
+                                <small class="form-text">
+                                    <i class="bi bi-info-circle"></i>
+                                    Serial Number atendimento
+                                </small>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="form-label">
+                                    <i class="bi bi-calendar-check"></i>
+                                    {{ form.attended_date.label }}
+                                </label>
+                                {{ form.attended_date }}
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="form-label">
+                                    <i class="bi bi-calendar-check"></i>
+                                    {{ form.expiration_date_attended.label }}  <!-- 🔧 CORRETO -->
+                                </label>
+                                {{ form.expiration_date_attended }}
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-check">
+                                {{ form.collected }}
+                                <label class="form-check-label" for="{{ form.collected.id_for_label }}">
+                                    <i class="bi bi-box-arrow-in-down me-2"></i>
+                                    {{ form.collected.label }}
+                                </label>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <div class="form-check">
+                                {{ form.contract_old }}
+                                <label class="form-check-label" for="{{ form.contract_old.id_for_label }}">
+                                    <i class="bi bi-file-earmark-check me-2"></i>
+                                    {{ form.contract_old.label }}
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            <!-- SEÇÃO 4: Informações Técnicas -->
+            <div class="form-section">
+                <div class="section-title">
+                    <i class="bi bi-speedometer2"></i>
+                    Informações Técnicas do Item
+                </div>
+                
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label class="form-label">
+                                <i class="bi bi-speedometer"></i>
+                                {{ form.tsn_item.label }}
+                            </label>
+                            {{ form.tsn_item }}
+                            <small class="form-text">
+                                <i class="bi bi-info-circle"></i>
+                                Total de horas (Time Since New)
+                            </small>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label class="form-label">
+                                <i class="bi bi-stopwatch"></i>
+                                {{ form.tso_item.label }}
+                            </label>
+                            {{ form.tso_item }}
+                            <small class="form-text">
+                                <i class="bi bi-info-circle"></i>
+                                Horas desde última revisão (Time Since Overhaul)
+                            </small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- SEÇÃO 5: Descrições e Análises -->
+            <div class="form-section">
+                <div class="section-title">
+                    <i class="bi bi-chat-left-text-fill"></i>
+                    Descrições e Análises Técnicas
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">
+                        <i class="bi bi-exclamation-triangle"></i>
+                        {{ form.failure_description.label }}
+                    </label>
+                    {{ form.failure_description }}
+                    <div class="char-counter" id="failureCounter">0 / 500 caracteres</div>
+                    <small class="form-text">
+                        <i class="bi bi-info-circle"></i>
+                        Descreva detalhadamente a falha identificada
+                    </small>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">
+                        <i class="bi bi-tools"></i>
+                        {{ form.troubleshooting.label }}
+                    </label>
+                    {{ form.troubleshooting }}
+                    <div class="char-counter" id="troubleshootingCounter">0 / 500 caracteres</div>
+                    <small class="form-text">
+                        <i class="bi bi-info-circle"></i>
+                        Descreva as ações de troubleshooting realizadas
+                    </small>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">
+                        <i class="bi bi-chat-square-text"></i>
+                        {{ form.reason.label }}
+                    </label>
+                    {{ form.reason }}
+                    <div class="char-counter" id="reasonCounter">0 / 500 caracteres</div>
+                    <small class="form-text">
+                        <i class="bi bi-info-circle"></i>
+                        Motivo da solicitação ou envio
+                    </small>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">
+                        <i class="bi bi-chat-square-text"></i>
+                        {{ form.observation.label }}
+                    </label>
+                    {{ form.observation }}
+                    <div class="char-counter" id="observationCounter">0 / 500 caracteres</div>
+                    <small class="form-text">
+                        <i class="bi bi-info-circle"></i>
+                        Observações diversas necessárias insira aqui
+                    </small>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">
+                        <i class="bi bi-chat-square-text"></i>
+                        {{ form.notes.label }}
+                    </label>
+                    {{ form.notes }}
+                    <small class="form-text">
+                        <i class="bi bi-info-circle"></i>
+                        Anotações diversas necessárias insira aqui
+                    </small>
+                </div>
+            </div>
+            
+            <!-- Action Buttons -->
+            <div class="d-flex justify-content-between align-items-center pt-4 mt-4 border-top" style="border-color: rgba(255, 255, 255, 0.1) !important;">
+                <a href="{% url 'order_detail' order.id %}" class="btn btn-secondary px-4">
+                    <i class="bi bi-x-lg me-2"></i>Cancelar
+                </a>
+                <button type="submit" class="btn btn-success px-4">
+                    <i class="bi bi-check-circle-fill me-2"></i>Adicionar/Atualizar Item ao Pedido
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Contadores de caracteres para textareas
+    const textareas = [
+        { field: document.querySelector('[name="failure_description"]'), counter: document.getElementById('failureCounter') },
+        { field: document.querySelector('[name="troubleshooting"]'), counter: document.getElementById('troubleshootingCounter') },
+        { field: document.querySelector('[name="reason"]'), counter: document.getElementById('reasonCounter') },
+        { field: document.querySelector('[name="observation"]'), counter: document.getElementById('observationCounter') },
+
+    ];
+    
+    textareas.forEach(({ field, counter }) => {
+        if (field && counter) {
+            function updateCounter() {
+                const count = field.value.length;
+                counter.textContent = `${count} / 500 caracteres`;
+                
+                if (count > 450) {
+                    counter.style.color = '#ffc107';
+                } else if (count > 480) {
+                    counter.style.color = '#dc3545';
+                } else {
+                    counter.style.color = 'rgba(255, 255, 255, 0.5)';
+                }
+            }
+            
+            field.addEventListener('input', updateCounter);
+            updateCounter();
+        }
+    });
+    
+    // Validação de quantidade
+    const quantityField = document.querySelector('[name="quantity"]');
+    if (quantityField) {
+        quantityField.addEventListener('input', function() {
+            const value = parseInt(this.value) || 0;
+            
+            if (value <= 0) {
+                this.setCustomValidity('A quantidade deve ser maior que zero');
+                this.style.borderColor = '#dc3545';
+            } else if (value > 9999) {
+                this.setCustomValidity('Quantidade muito alta');
+                this.style.borderColor = '#ffc107';
+            } else {
+                this.setCustomValidity('');
+                this.style.borderColor = '';
+            }
+        });
+    }
+    
+    // Validação de campos mutuamente exclusivos
+    const inventoryItem = document.querySelector('[name="inventory_item"]');
+    const itemItem = document.querySelector('[name="item_item"]');
+    
+    if (inventoryItem && itemItem) {
+        inventoryItem.addEventListener('change', function() {
+            if (this.value) {
+                itemItem.value = '';
+                itemItem.style.opacity = '0.5';
+                itemItem.disabled = true;
+            } else {
+                itemItem.style.opacity = '1';
+                itemItem.disabled = false;
+            }
+        });
+        
+        itemItem.addEventListener('change', function() {
+            if (this.value) {
+                inventoryItem.value = '';
+                inventoryItem.style.opacity = '0.5';
+                inventoryItem.disabled = true;
+            } else {
+                inventoryItem.style.opacity = '1';
+                inventoryItem.disabled = false;
+            }
+        });
+    }
+    
+    // Confirmação antes de enviar
+    const form = document.getElementById('orderItemForm');
+    form.addEventListener('submit', function(e) {
+        const hasInventory = inventoryItem && inventoryItem.value;
+        const hasItem = itemItem && itemItem.value;
+        
+        if (!hasInventory && !hasItem) {
+            e.preventDefault();
+            alert('Você deve selecionar um Item de Estoque OU um Item FMS');
+            return false;
+        }
+        
+        const quantity = quantityField ? parseInt(quantityField.value) : 0;
+        if (quantity <= 0) {
+            e.preventDefault();
+            alert('A quantidade deve ser maior que zero');
+            quantityField.focus();
+            return false;
+        }
+    });
+    
+    // Inicializar tooltips
+    if (typeof bootstrap !== 'undefined') {
+        const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+        tooltipTriggerList.map(function (tooltipTriggerEl) {
+            return new bootstrap.Tooltip(tooltipTriggerEl);
+        });
+    }
+});
+
+function clearInventoryItem() {
+    const select = document.getElementById('id_inventory_item');
+    if (select) {
+        select.selectedIndex = 0; // Volta para a primeira opção (geralmente vazia)
+        // Se estiver usando Select2
+        if (typeof $(select).select2 !== 'undefined') {
+            $(select).val(null).trigger('change');
+        }
+    }
+}
+
+function clearItemItem() {
+    const select = document.getElementById('id_item_item');
+    if (select) {
+        select.selectedIndex = 0; // Volta para a primeira opção (geralmente vazia)
+        // Se estiver usando Select2
+        if (typeof $(select).select2 !== 'undefined') {
+            $(select).val(null).trigger('change');
+        }
+    }
+}
+
+</script>
+{% endblock %}

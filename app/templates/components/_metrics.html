@@ -1,0 +1,226 @@
+<!-- _metrics.html - Dashboard Metrics -->
+
+
+<!-- Controle de Pedidos -->
+<div class="metrics-section">
+    {% if perms.order.view_order %}
+    <div class="section-header">
+        <h5>
+            <i class="bi bi-box-seam-fill"></i>
+            Métrica de Pedidos
+        </h5>
+    </div>
+
+    <div class="metrics-grid">
+        <div class="metric-card secondary">
+            <div class="metric-header">
+                <div class="metric-content">
+                    <div class="metric-title">
+                        <i class="bi bi-collection me-1"></i>
+                        Pedidos Realizados
+                    </div>
+                    <div class="metric-value">{{ order_metrics.total_orders|default:0 }}</div>
+                </div>
+                <div class="metric-icon">
+                    <i class="bi bi-receipt-cutoff"></i>
+                </div>
+            </div>
+            <div class="metric-footer">
+                <i class="bi bi-graph-up me-1"></i>
+                Total de pedidos no sistema
+            </div>
+        </div>
+
+        <div class="metric-card success">
+            <div class="metric-header">
+                <div class="metric-content">
+                    <div class="metric-title">
+                        <i class="bi bi-folder2-open me-1"></i>
+                        Pedidos em Aberto
+                    </div>
+                    <div class="metric-value">{{ order_metrics.open_orders|default:0 }}</div>
+                </div>
+                <div class="metric-icon">
+                    <i class="bi bi-unlock-fill"></i>
+                </div>
+            </div>
+            <div class="metric-footer">
+                <i class="bi bi-clock-history me-1"></i>
+                Aguardando atendimento
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+{% if perms.inventory.view_inventory %}
+<!-- Controle de Inventário -->
+<div class="metrics-section">
+    <div class="section-header">
+        <h5>
+            <i class="bi bi-shop"></i>
+            Métrica de Inventário
+        </h5>
+    </div>
+
+    <div class="metrics-grid">
+        <div class="metric-card primary">
+            <div class="metric-header">
+                <div class="metric-content">
+                    <div class="metric-title">
+                        <i class="bi bi-archive me-1"></i>
+                        Itens em Inventário
+                    </div>
+                    <div class="metric-value">{{ inventory_metrics.total_itens|default:0 }}</div>
+                </div>
+                <div class="metric-icon">
+                    <i class="bi bi-box-seam"></i>
+                </div>
+            </div>
+            <div class="metric-footer">
+                <i class="bi bi-check-circle me-1"></i>
+                Total de itens cadastrados
+            </div>
+        </div>
+
+        <div class="metric-card danger">
+            <div class="metric-header">
+                <div class="metric-content">
+                    <div class="metric-title">
+                        <i class="bi bi-exclamation-triangle me-1"></i>
+                        Itens Vencidos
+                    </div>
+                    <div class="metric-value">{{ inventory_metrics.itens_expirated|default:0 }}</div>
+                </div>
+                <div class="metric-icon">
+                    <i class="bi bi-x-circle-fill"></i>
+                </div>
+            </div>
+            <div class="metric-footer">
+                <i class="bi bi-calendar-x me-1"></i>
+                Itens com validade expirada
+            </div>
+        </div>
+
+        <div class="metric-card warning">
+            <div class="metric-header">
+                <div class="metric-content">
+                    <div class="metric-title">
+                        <i class="bi bi-graph-down me-1"></i>
+                        Abaixo do Mínimo
+                    </div>
+                    <div class="metric-value">{{ inventory_metrics.itens_minimum|default:0 }}</div>
+                </div>
+                <div class="metric-icon">
+                    <i class="bi bi-dash-circle-fill"></i>
+                </div>
+            </div>
+            <div class="metric-footer">
+                <i class="bi bi-arrow-down-circle me-1"></i>
+                Itens abaixo/igual quantidade mínima
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+{% if perms.inflow.view_inflow or perms.outflow.view_outflow %}
+<!-- Controle de Entrada e Saída -->
+<div class="metrics-section">
+    <div class="section-header">
+        <h5>
+            <i class="bi bi-arrow-left-right"></i>
+            Métricas Entrada e Saída Mensal
+        </h5>
+    </div>
+
+    <!-- Filtro de Data -->
+    <div class="filter-container">
+        <form method="get" action="">
+            <div class="row align-items-center">
+                <div class="col-md-3">
+                    <label style="color: rgba(255, 255, 255, 0.7); font-size: 0.875rem; margin-bottom: 0.5rem;">
+                        <i class="bi bi-calendar-month me-1"></i>
+                        Selecione o Mês
+                    </label>
+                    <input 
+                        type="month" 
+                        name="date" 
+                        class="form-control"
+                        value="{{ request.GET.date|default:'' }}"
+                    >
+                </div>
+                <div class="col-md-3 d-flex gap-2 align-items-end">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="bi bi-funnel-fill me-2"></i>Filtrar
+                    </button>
+                    {% if request.GET.date %}
+                        <a href="{% url 'home' %}" class="btn btn-outline-secondary">
+                            <i class="bi bi-x-lg me-1"></i>Limpar
+                        </a>
+                    {% endif %}
+                </div>
+                {% if request.GET.date %}
+                <div class="col-md-6 text-end">
+                    <span class="badge bg-info" style="padding: 0.5rem 1rem; font-size: 0.875rem;">
+                        <i class="bi bi-calendar-check me-1"></i>
+                        Período filtrado: {{ request.GET.date }}
+                    </span>
+                </div>
+                {% endif %}
+            </div>
+        </form>
+    </div>
+{% endif %}
+{% if perms.inflow.view_inflow %}
+    <div class="metrics-grid">
+        <div class="metric-card success">
+            <div class="metric-header">
+                <div class="metric-content">
+                    <div class="metric-title">
+                        <i class="bi bi-arrow-down-circle me-1"></i>
+                        Entrada de Itens
+                    </div>
+                    <div class="metric-value">{{ inflow_outflow_metrics.total_inflows|default:0 }}</div>
+                </div>
+                <div class="metric-icon">
+                    <i class="bi bi-box-arrow-in-down"></i>
+                </div>
+            </div>
+            <div class="metric-footer">
+                <i class="bi bi-plus-circle me-1"></i>
+                {% if request.GET.date %}
+                    Entradas em {{ request.GET.date }}
+                {% else %}
+                    Total de entradas
+                {% endif %}
+            </div>
+        </div>
+{% endif %}
+
+{% if perms.outflow.view_outflow %}
+        <div class="metric-card danger">
+            <div class="metric-header">
+                <div class="metric-content">
+                    <div class="metric-title">
+                        <i class="bi bi-arrow-up-circle me-1"></i>
+                        Saída de Itens
+                    </div>
+                    <div class="metric-value">{{ inflow_outflow_metrics.total_outflows|default:0 }}</div>
+                </div>
+                <div class="metric-icon">
+                    <i class="bi bi-box-arrow-right"></i>
+                </div>
+            </div>
+            <div class="metric-footer">
+                <i class="bi bi-dash-circle me-1"></i>
+                {% if request.GET.date %}
+                    Saídas em {{ request.GET.date }}
+                {% else %}
+                    Total de saídas
+                {% endif %}
+            </div>
+        </div>
+    {% endif %}
+    </div>
+</div>

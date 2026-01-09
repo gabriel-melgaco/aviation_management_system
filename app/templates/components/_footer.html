@@ -1,0 +1,21 @@
+<!-- _footer.html -->
+<footer class="footer bg-dark text-white py-4 mt-auto" style="height: var(--footer-height); background: linear-gradient(135deg, #232526 0%, #414345 100%) !important; z-index: 9999;">
+    <div class="container-fluid px-4">
+        <div class="row align-items-center">
+            <div class="col-md-6">
+                <div class="d-flex align-items-center">
+                    <i class="bi bi-shield-check me-2"></i>
+                    <span>© {{ current_year|default:"2025" }} SGS - 1º Batalhão de Aviação do Exército | Desenvolvido por: <a href="https://github.com/gabriel-melgaco/"">MEG</a></span>
+                </div>
+            </div>
+            <div class="col-md-6 text-md-end">
+                <small class="text-white-50">
+                    <i class="bi bi-code-slash me-1"></i>
+                    Versão 1.0.0 | 
+                    <i class="bi bi-calendar3 me-1"></i>
+                    {% now "d/m/Y" %}
+                </small>
+            </div>
+        </div>
+    </div>
+</footer>

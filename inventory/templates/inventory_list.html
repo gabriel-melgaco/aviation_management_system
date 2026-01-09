@@ -1,0 +1,258 @@
+<!-- item_list.html -->
+{% extends 'base.html' %}
+{% load static %}
+
+{% block extra_css %}
+<link href="{% static 'css/inventory_list.css' %}" rel="stylesheet">
+{% endblock %}
+
+
+{% block title %}
+SGS 1º BAvEx - Gestão de Estoque
+{% endblock %}
+
+
+{% block content %}
+<!-- Page Header -->
+<div class="page-header">
+    <div class="d-flex justify-content-between align-items-center">
+        <div>
+            <h1 class="fw-bold mb-2">
+                <i class="bi bi-shop me-3"></i>Gestão de Estoque
+            </h1>
+        </div>
+        <div class="d-flex gap-3">
+        </div>
+    </div>
+</div>
+
+<!-- Search and Actions -->
+<div class="row mb-4">
+    <div class="col-lg-8">
+        <div class="search-container">
+            <form method="get" action="">
+                <div class="input-group">
+                    <span class="input-group-text bg-transparent border-0">
+                        <i class="bi bi-search text-muted"></i>
+                    </span>
+                    <!-- Filtro de Search -->
+                    <input type="text" 
+                           class="form-control bg-transparent border-0" 
+                           name="search" 
+                           placeholder="Buscar por MPN, PN, nome ou documento..." 
+                           value="{{ request.GET.search }}"
+                           style="box-shadow: none;">
+
+                    <!-- Filtro de Kanban -->
+                    <select name="kanban" 
+                            class="form-select {% if request.GET.kanban %}filter-active{% endif %}"
+                            style="background-color: transparent; color: #ffffff; border: none;">
+                        
+                        <!-- "Placeholder" -->
+                        <option value="" disabled {% if not request.GET.kanban %}selected{% endif %}>
+                            🔍 Filtro Kanban
+                        </option>
+
+                        <option value="">Todos</option>
+                        <option value="ENGINE" {% if request.GET.kanban == 'ENGINE' %}selected{% endif %}>⚙️ Motor</option>
+                        <option value="CELL" {% if request.GET.kanban == 'CELL' %}selected{% endif %}>🚁 Célula</option>
+                        <option value="NOT" {% if request.GET.kanban == 'NOT' %}selected{% endif %}>🔩 Comum</option>
+                    </select>
+
+                    <!-- Filtro de URL -->
+                    <input type="hidden" name="site" value="{{ request.resolver_match.kwargs.site }}">
+                    <input type="hidden" name="subsite" value="{{ request.resolver_match.kwargs.subsite }}">
+                    <button type="submit" class="btn btn-primary px-4">
+                        <i class="bi bi-search me-2"></i>Buscar
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+    <div class="col-lg-4">
+        <div class="d-flex gap-2 justify-content-end">
+            <div class="dropdown">
+                <button class="btn btn-outline-primary dropdown-toggle" data-bs-toggle="dropdown">
+                    <i class="bi bi-three-dots"></i>
+                </button>
+                <ul class="dropdown-menu dropdown-menu-end dropdown-menu-dark">
+                    <li><a class="dropdown-item" href="#">
+                        <i class="bi bi-download me-2"></i>Exportar Excel
+                    </a></li>
+                    <li><a class="dropdown-item" href="#">
+                        <i class="bi bi-file-pdf me-2"></i>Exportar PDF
+                    </a></li>
+                    <li><hr class="dropdown-divider"></li>
+                    <li><a class="dropdown-item" href="#">
+                        <i class="bi bi-upload me-2"></i>Importar Dados
+                    </a></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Search Results Info -->
+{% if request.GET.search %}
+<div class="alert alert-info border-0" style="background: rgba(13, 202, 240, 0.1); border-left: 4px solid #0dcaf0 !important;">
+    <i class="bi bi-info-circle me-2"></i>
+    Encontrados <strong>{{ inventory.count }}</strong> resultados para "<strong>{{ request.GET.search }}</strong>"
+</div>
+{% endif %}
+
+<!-- Items Table -->
+<div class="table-container">
+    {% if inventorys %}
+        <div class="table-responsive">
+            <table class="table table-dark table-hover mb-0">
+                <thead>
+                    <tr>
+                        <th><i class="bi bi-geo-alt me-2"></i>Localização</th>
+                        <th><i class="bi bi-hash me-2"></i>MPN</th>
+                        <th><i class="bi bi-tag me-2"></i>PN</th>
+                        <th><i class="bi bi-box me-2"></i>Nome do Item</th>
+                        <th><i class="bi bi-123 me-2"></i>Quantidade</th>                        
+                        <th><i class="bi bi-upc-scan me-2"></i>Serial Number</th>
+                        <th><i class="bi bi-kanban me-2"></i>Kanban</th>
+                        <th><i class="bi bi-arrow-left-right me-2"></i>Equivalentes</th>
+                        <th width="140"><i class="bi bi-gear me-2"></i>Ações</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for inventory in inventorys %}
+                    <tr>
+                        <td>
+                            <div class="location-info">
+                                <div><strong>{{ inventory.location.om }}</strong></div>
+                                {% if inventory.location.section %}
+                                    <small class="text-muted">Seção: {{ inventory.location.section }}</small>
+                                {% endif %}
+                                {% if inventory.location.shelf %}
+                                    <br><small class="text-info">Prateleira: {{ inventory.location.shelf }}</small>
+                                {% endif %}
+                                {% if inventory.location.section %}
+                                    <br><small class="text-muted">Case: {{ inventory.location.case }}</small>
+                                {% endif %}
+                                {% if inventory.location.item_number %}
+                                    <br><small class="text-info">Nº Item: {{ inventory.location.item_number }}</small>
+                                {% endif %}
+                            </div>
+                        </td>
+                        <td>
+                            <span class="badge bg-primary">{{ inventory.item.mpn }}</span>
+                        </td>
+                        <td>
+                            {% if inventory.item.pn %}
+                                <span class="badge bg-secondary">{{ inventory.item.pn }}</span>
+                            {% else %}
+                                <span class="text-muted">—</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <div class="fw-semibold">{{ inventory.item.name }}</div>
+                            {% if inventory.item.description %}
+                                <small class="text-muted d-block">{{ inventory.item.description|truncatechars:50 }}</small>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if inventory.quantity < inventory.minimum_quantity %}
+                            <span class="badge bg-danger">{{ inventory.quantity }}</span>
+                            {% else %}
+                            <span class="badge bg-success">{{ inventory.quantity }}</span>
+                            {% endif %}
+                            {% if inventory.minimum_quantity %}
+                                <br><small class="text-warning">Min: {{ inventory.minimum_quantity }}</small>
+                            {% endif %}
+                        </td>
+                        <td class="serial-numbers">
+                            {% if inventory.serial_number %}
+                                    <span class="badge-equivalent">{{ inventory.serial_number }}</span>
+                            {% else %}
+                                <span class="text-muted">—</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if inventory.kanban == 'ENGINE' %}
+                                <span class="badge kanban-badge">
+                                    <i class="bi bi-gear-fill"></i></i>Motor
+                                </span>
+                            {% elif inventory.kanban == 'CELL' %}
+                                <span class="badge kanban-badge">
+                                    <i class="bi bi-airplane"></i></i>Célula
+                                </span>
+                            {% elif inventory.kanban == 'NOT' %}
+                                <span class="badge kanban-badge">
+                                    <i class="bi bi-tools"></i></i>Comum
+                                </span>
+                            {% else %}
+                                <span class="badge bg-secondary">
+                                    <i class="bi bi-question-circle me-1"></i>Indefinido
+                                </span>
+                            {% endif %}
+                        </td>
+
+                        <td>
+                            {% if inventory.item.all_equivalents %}
+                                {% for eq in inventory.item.all_equivalents %}
+                                    <span class="badge-equivalent">{{ eq.mpn }}</span>
+                                {% endfor %}
+                            {% else %}
+                                <span class="text-muted">—</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <div class="d-flex">
+                                <a href="{% url 'inventory_detail' inventory.id %}" 
+                                   class="btn btn-info btn-action" 
+                                   title="Ver detalhes">
+                                    <i class="bi bi-eye"></i>
+                                </a>
+                                {% if inventory.serial_number %}
+                                {% else %}
+                                {% if perms.inflow.change_inflow %}
+                                <a href="{% url 'inflow_add' inventory.id %}" 
+                                   class="btn btn-success btn-action" 
+                                   title="Entrada">
+                                    <i class="bi bi-box-arrow-in-down"></i>
+                                </a>
+                                {% endif %}
+                                {% endif %}
+                                {% if perms.outflow.change_outflow %}
+                                <a href="{% url 'outflow_move' inventory.id %}" 
+                                   class="btn btn-warning btn-action" 
+                                   title="Saída"
+                                   onclick="return confirm('Tem certeza que deseja movimentar este item do inventário?')">
+                                    <i class="bi bi-box-arrow-right"></i>
+                                </a>
+                                {% endif %}
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    {% else %}
+        <div class="text-center py-5">
+            <i class="bi bi-inbox display-1 text-muted mb-3"></i>
+            <h4 class="text-muted">Nenhum item no inventário</h4>
+            <p class="text-muted">
+                {% if request.GET.search %}
+                    Tente buscar com termos diferentes ou 
+                    <a href="#" class="text-decoration-none">limpar a busca</a>
+                {% else %}
+                    Comece adicionando um novo item ao inventário
+                {% endif %}
+            </p>
+            {% if not request.GET.search %}
+                <a href="#" class="btn btn-success">
+                    <i class="bi bi-plus-lg me-2"></i>Adicionar Primeiro Item ao Inventário
+                </a>
+            {% endif %}
+        </div>
+    {% endif %}
+</div>
+
+<!-- Pagination -->
+{% include 'components/_pagination.html' %}
+{% endblock %}

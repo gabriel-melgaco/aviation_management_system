@@ -1,0 +1,115 @@
+.detail-card {
+background: rgba(255, 255, 255, 0.02);
+border: 1px solid rgba(255, 255, 255, 0.1);
+border-radius: 15px;
+backdrop-filter: blur(10px);
+overflow: hidden;
+}
+
+.detail-header {
+background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+padding: 25px;
+color: white;
+}
+
+.detail-info {
+padding: 25px;
+}
+
+.info-item {
+background: rgba(255, 255, 255, 0.03);
+border-radius: 10px;
+padding: 15px;
+margin-bottom: 15px;
+border-left: 4px solid #667eea;
+}
+
+.info-label {
+font-size: 0.85rem;
+color: #adb5bd;
+text-transform: uppercase;
+letter-spacing: 0.5px;
+margin-bottom: 5px;
+}
+
+.info-value {
+font-size: 1.1rem;
+font-weight: 500;
+}
+
+.page-header {
+background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
+border-radius: 15px;
+padding: 25px;
+margin-bottom: 30px;
+border: 1px solid rgba(102, 126, 234, 0.2);
+}
+
+.filter-container {
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+    border-radius: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    padding: 20px;
+    margin-bottom: 25px;
+}
+.filter-label {
+    color: #ffffff;
+    font-weight: 500;
+    margin-bottom: 8px;
+    font-size: 0.9rem;
+}
+.date-filter-input {
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    border-radius: 8px;
+    color: #ffffff;
+    transition: all 0.3s ease;
+}
+.date-filter-input:focus {
+    background: rgba(255, 255, 255, 0.15);
+    border-color: #0dcaf0;
+    box-shadow: 0 0 0 0.2rem rgba(13, 202, 240, 0.25);
+    color: #ffffff;
+}
+.date-filter-input::placeholder {
+    color: rgba(255, 255, 255, 0.6);
+}
+.quick-filter-btn {
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    color: #ffffff;
+    border-radius: 6px;
+    padding: 0.375rem 0.75rem;
+    font-size: 0.875rem;
+    transition: all 0.3s ease;
+}
+.quick-filter-btn:hover {
+    background: rgba(13, 202, 240, 0.2);
+    border-color: #0dcaf0;
+    color: #ffffff;
+}
+.quick-filter-btn.active {
+    background: #0dcaf0;
+    border-color: #0dcaf0;
+    color: #000;
+}
+.filter-actions {
+    display: flex;
+    gap: 10px;
+    align-items: end;
+}
+.active-filters {
+    background: rgba(13, 202, 240, 0.1);
+    border-left: 4px solid #0dcaf0;
+    padding: 12px 16px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+}
+.search-container {
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+    border-radius: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    overflow: hidden;
+}

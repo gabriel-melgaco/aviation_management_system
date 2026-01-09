@@ -1,0 +1,169 @@
+<!-- inventory_detail.html -->
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ object.item.name }} - Detalhes{% endblock %}
+
+{% block extra_css %}
+<link href="{% static 'css/inventory_detail.css' %}" rel="stylesheet">
+{% endblock %}
+
+{% block content %}
+<!-- Page Header -->
+<div class="page-header">
+    <div class="d-flex justify-content-between align-items-center">
+        <div>
+            <h1 class="fw-bold mb-2">
+                <i class="bi bi-info-circle me-3"></i>Detalhes do Item em Estoque
+            </h1>
+            <p class="text-muted mb-0">Informações completas do item em estoque selecionado</p>
+        </div>
+        <div class="d-flex gap-2">
+            {% if perms.inventory.change_inventory %}
+            <a href="{% url 'inventory_update' object.id %}" class="btn btn-warning">
+                <i class="bi bi-pencil me-2"></i>Editar
+            </a>
+            {% endif %}
+            <a href="{% url 'inventory_list' %}" class="btn btn-outline-secondary">
+                <i class="bi bi-arrow-left me-2"></i>Voltar
+            </a>
+        </div>
+    </div>
+</div>
+
+<!-- Item Details -->
+<div class="detail-card">
+    <!-- Header -->
+    <div class="detail-header">
+        <div class="d-flex align-items-center">
+            <div class="me-4">
+                <i class="bi bi-box-seam display-4"></i>
+            </div>
+            <div>
+                <h2 class="mb-1">{{ object.item.name }}</h2>
+                <div class="d-flex flex-wrap gap-3">
+                    <span class="badge bg-light text-dark">MPN: {{ object.item.mpn }}</span>
+                    <span class="badge bg-primary text-dark">Quantidade: {{ object.quantity }}</span>
+                    {% if object.serial_number %}
+                    <span class="badge bg-danger text-dark">SN: {{ object.serial_number }}</span>
+                    {% else %}
+                    {% endif %}
+
+                    {% if object.kanban %}
+                        <span class="badge bg-secondary text-dark">
+                            Kanban: <i class="bi bi-check-lg"></i>
+                        </span>
+                    {% else %}
+                        <span class="badge bg-secondary text-dark">
+                            Kanban: <i class="bi bi-x-lg"></i>
+                        </span>
+                    {% endif %}
+
+                    <span class="badge bg-warning text-dark">
+                        Data Validade: {{ object.expiration_date }}
+                    </span>
+
+                    {% if object.pn %}
+                        <span class="badge bg-light text-dark">PN: {{ object.item.pn }}</span>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Info -->
+    <div class="detail-info">
+        <div class="row">
+            <!-- Coluna Esquerda -->
+            <div class="col-md-6">
+                <div class="info-item">
+                    <div class="info-label"><i class="bi bi-hash me-1"></i>MPN (Main Part Number)</div>
+                    <div class="info-value">{{ object.item.mpn }}</div>
+                </div>
+
+                <div class="info-item">
+                    <div class="info-label"><i class="bi bi-geo me-1"></i>Localização</div>
+                    <div class="info-value">{{ object.location }}</div>
+                </div>
+
+                <div class="info-item">
+                    <div class="info-label"><i class="bi bi-cart-check me-1"></i>Quantidade Mínima</div>
+                    <div class="info-value">{{ object.minimum_quantity }}</div>
+                </div>
+
+                <div class="info-item">
+                    <div class="info-label"><i class="bi bi-tag me-1"></i>PN (Part Number)</div>
+                    <div class="info-value">{{ object.item.pn|default:"Não informado" }}</div>
+                </div>
+
+                <div class="info-item">
+                    <div class="info-label"><i class="bi bi-file-text me-1"></i>Documento</div>
+                    <div class="info-value">{{ object.item.doc|default:"Não informado" }}</div>
+                </div>
+
+            </div>
+
+            <!-- Coluna Direita -->
+            <div class="col-md-6">
+                <div class="info-item">
+                    <div class="info-label"><i class="bi bi-airplane me-1"></i>Documento da Aeronave</div>
+                    <div class="info-value">{{ object.item.aircraft_doc|default:"Não informado" }}</div>
+                </div>
+
+                <div class="info-item">
+                    <div class="info-label"><i class="bi bi-person-circle me-1"></i>Criado por</div>
+                    <div class="info-value">{{ object.item.created_by|default:"Sistema" }}</div>
+                </div>
+
+                <div class="info-item">
+                    <div class="info-label"><i class="bi bi-calendar-event me-1"></i>Data de Criação</div>
+                    <div class="info-value">{{ object.item.created_at|date:"d/m/Y H:i" }}</div>
+                </div>
+
+                <div class="info-item">
+                    <div class="info-label"><i class="bi bi-arrow-repeat me-1"></i>Última Atualização</div>
+                    <div class="info-value">{{ object.item.updated_at|date:"d/m/Y H:i" }}</div>
+                </div>
+
+                <div class="info-item">
+                    <div class="info-label"><i class="bi bi-book me-1"></i>Publicação Técnica</div>
+                    <div class="info-value">{{ object.item.tec_pub|default:"Não informado" }}</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Equivalents Section -->
+        {% if object.item.all_equivalents %}
+            <div class="info-item mt-4">
+                <div class="info-label"><i class="bi bi-arrow-left-right me-1"></i>Itens Equivalentes</div>
+                <div class="info-value">
+                    <div class="d-flex flex-wrap gap-2 mt-2">
+                        {% for eq in object.item.all_equivalents %}
+                            <span class="badge bg-primary">{{ eq.mpn }} - {{ eq.name }}</span>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Action Buttons -->
+<div class="d-flex justify-content-center gap-3 mt-4">
+    {% if perms.inventory.change_inventory %}
+    <a href="{% url 'inventory_update' object.id %}" class="btn btn-warning px-4">
+        <i class="bi bi-pencil me-2"></i>Editar Item do Estoque
+    </a>
+    {% endif %}
+    {% if perms.inventory.delete_inventory %}
+    <a href="{% url 'inventory_delete' object.id %}" 
+       class="btn btn-danger px-4"
+       onclick="return confirm('Tem certeza que deseja excluir este item?')">
+        <i class="bi bi-trash me-2"></i>Excluir Item do Estoque
+    </a>
+    {% endif %}
+    <a href="{% url 'inventory_list' %}" class="btn btn-secondary px-4">
+        <i class="bi bi-arrow-left me-2"></i>Voltar à Lista
+    </a>
+</div>
+{% endblock %}

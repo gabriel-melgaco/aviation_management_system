@@ -1,0 +1,469 @@
+<!-- _sidebar.html -->
+ {% load static %}
+<aside class="sidebar position-fixed" id="sidebar" style="
+    width: var(--sidebar-width);
+    height: calc(100vh - var(--header-height));
+    top: var(--header-height);
+    left: 0;
+    background: linear-gradient(180deg, #232526 0%, #414345 100%);
+    backdrop-filter: blur(10px);
+    box-shadow: 2px 0 20px rgba(0,0,0,0.1);
+    transition: all 0.3s ease;
+    overflow-y: auto;
+    z-index: 1040;
+">
+    <!-- Sidebar Header -->
+    <div class="p-4 border-bottom border-secondary">
+        <div class="d-flex align-items-center justify-content-between">
+            <small class="text-white-50 text-uppercase fw-bold ls-1 sidebar-text"> Bem-vindo ao menu </small>
+                <i class="bi bi-chevron-left" id="toggleIcon"></i>
+        </div>
+    </div>
+    
+    <!-- Sidebar Content -->
+    <div class="py-3">
+        <!-- Principal Section -->
+        <div class="px-3 mb-4">
+            <small class="text-white-50 text-uppercase fw-bold ls-1 sidebar-text">Principal</small>
+            <nav class="nav flex-column mt-2">
+                <a href="{% url 'home' %}" class="nav-link text-white-50 d-flex align-items-center py-2 px-3 rounded-3 sidebar-link" data-menu="dashboard">
+                    <i class="bi bi-speedometer2 fs-5 me-3 sidebar-icon"></i>
+                    <span class="sidebar-text">Dashboard</span>
+                </a>
+            </nav>
+        </div>
+        
+        <!-- Gestão Section -->
+        <div class="px-3 mb-4">
+            {% if perms.item.view_item or perms.inventory.view_inventory or perms.location.view_location %}
+            <small class="text-white-50 text-uppercase fw-bold ls-1 sidebar-text">Gestão</small>
+            {% endif %}
+            <nav class="nav flex-column mt-2">
+                <!-- Gestão Itens Dropdown -->
+                {% if perms.item.view_item %}
+                <div class="dropdown">
+                    <button class="nav-link text-white-50 d-flex align-items-center py-2 px-3 rounded-3 sidebar-link dropdown-toggle border-0 bg-transparent w-100 text-start" 
+                            data-bs-toggle="dropdown" aria-expanded="false" data-menu="cadastro-itens">
+                        <i class="bi bi-diagram-3-fill fs-5 me-3 sidebar-icon"></i>
+                        <span class="sidebar-text">Cadastro Itens</span>
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-dark border-0 shadow-lg" 
+                        style="background: rgba(33, 37, 41, 0.95); backdrop-filter: blur(10px); z-index: 9999; position: fixed;">
+                        <li>
+                            <a class="dropdown-item rounded-2" href="{% url 'item_list' %}" data-menu="item-list">
+                                <i class="bi bi-box me-2"></i>Itens
+                            </a>
+                        </li>
+                        <li>
+                            {% if perms.item.view_itemequivalent %}
+                            <a class="dropdown-item rounded-2" href="{% url 'item_list_equivalent' %}" data-menu="item-equivalent">
+                                <i class="bi bi-arrow-left-right me-2"></i>Equivalências
+                            </a>
+                            {% endif %}
+                        </li>                    
+                    </ul>
+                </div>
+                
+                {% endif %}
+                
+                {% if perms.inventory.view_inventory %}
+                <a href="{% url 'inventory_list_argument' site='1bavex' subsite='spu' %}" class="nav-link text-white-50 d-flex align-items-center py-2 px-3 rounded-3 sidebar-link" data-menu="inventario_spu">
+                    <i class="bi bi-shop fs-5 me-3 sidebar-icon"></i>
+                    <span class="sidebar-text">Estoque SPU</span>
+                </a>
+                
+                <a href="{% url 'inventory_list' %}" class="nav-link text-white-50 d-flex align-items-center py-2 px-3 rounded-3 sidebar-link" data-menu="inventario">
+                    <i class="bi bi bi-globe fs-5 me-3 sidebar-icon"></i>
+                    <span class="sidebar-text">Estoque Geral</span>
+                </a>
+
+                {% endif %}
+
+
+                {% if perms.location.view_location %}
+                <a href="{% url 'location_list' %}" class="nav-link text-white-50 d-flex align-items-center py-2 px-3 rounded-3 sidebar-link" data-menu="localizacao">
+                    <i class="bi bi-geo-alt fs-5 me-3 sidebar-icon"></i>
+                    <span class="sidebar-text">Localização</span>
+                </a>
+                {% endif %}
+            </nav>
+        </div>
+
+        
+        <!-- Operações Section -->
+        <div class="px-3 mb-4">
+            {% if perms.order.view_order or perms.inflow.view_inflow or perms.outflow.view_outflow %}
+            <small class="text-white-50 text-uppercase fw-bold ls-1 sidebar-text">Operações</small>
+            {% endif %}
+            <nav class="nav flex-column mt-2">
+                {% if perms.order.view_order %}
+                <a href="{% url 'order_list' %}" class="nav-link text-white-50 d-flex align-items-center py-2 px-3 rounded-3 sidebar-link position-relative" data-menu="pedidos">
+                    <i class="bi bi-box-seam fs-5 me-3 sidebar-icon"></i>
+                    <span class="sidebar-text">Pedidos</span>
+                </a>
+                {% endif %}
+
+                {% if perms.inflow.view_inflow %}
+                <div class="dropdown">
+                    <button class="nav-link text-white-50 d-flex align-items-center py-2 px-3 rounded-3 sidebar-link dropdown-toggle border-0 bg-transparent w-100 text-start" 
+                            data-bs-toggle="dropdown" aria-expanded="false" data-menu="entradas">
+                        <i class="bi bi-arrow-down-left-square fs-5 me-3 sidebar-icon"></i>
+                        <span class="sidebar-text">Entradas</span>
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-dark border-0 shadow-lg" 
+                        style="background: rgba(33, 37, 41, 0.95); backdrop-filter: blur(10px); z-index: 9999; position: fixed;">
+                        <li>
+                            <a class="dropdown-item rounded-2" href="{% url 'inflow_list' %}" data-menu="item-list">
+                                <i class="bi bi-card-list me-2"></i>Listar Entradas
+                            </a>
+                        </li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li>
+                            {% if perms.inflow.add_inflow %}
+                            <a class="dropdown-item rounded-2" href="{% url 'inflow_create' %}" data-menu="item-equivalent">
+                                <i class="bi bi-book me-2"></i>Criar Entradas
+                            </a>
+                            {% endif %}
+                        </li>
+                    </ul>
+                </div>
+                {% endif %}
+                
+                {% if perms.outflow.view_outflow %}
+                <a href="{% url 'outflow_list' %}" class="nav-link text-white-50 d-flex align-items-center py-2 px-3 rounded-3 sidebar-link" data-menu="saidas">
+                    <i class="bi bi-arrow-up-right-square fs-5 me-3 sidebar-icon"></i>
+                    <span class="sidebar-text">Saídas</span>
+                </a>
+                {% endif %}
+            </nav>
+        </div>
+        
+        <!-- Relatórios Section -->
+        <div class="px-3 mb-4">
+            <small class="text-white-50 text-uppercase fw-bold ls-1 sidebar-text">Relatórios</small>
+            <nav class="nav flex-column mt-2">
+                <a href="#" class="nav-link text-white-50 d-flex align-items-center py-2 px-3 rounded-3 sidebar-link" data-menu="analytics">
+                    <i class="bi bi-graph-up fs-5 me-3 sidebar-icon"></i>
+                    <span class="sidebar-text">Analytics</span>
+                </a>
+                
+                <a href="#" class="nav-link text-white-50 d-flex align-items-center py-2 px-3 rounded-3 sidebar-link" data-menu="relatorios">
+                    <i class="bi bi-file-earmark-bar-graph fs-5 me-3 sidebar-icon"></i>
+                    <span class="sidebar-text">Relatórios</span>
+                </a>
+            </nav>
+        </div>
+    </div>
+</aside>
+
+<style>
+/* Sidebar Styles */
+.sidebar-link {
+    transition: all 0.2s ease;
+    margin-bottom: 2px;
+}
+
+.sidebar-link:hover {
+    background: rgba(255, 255, 255, 0.1) !important;
+    color: #ffffff !important;
+    transform: translateX(4px);
+}
+
+.sidebar-link.active {
+    background: linear-gradient(135deg, #0670b6 0%, #0760a8 100%) !important;
+    color: #ffffff !important;
+    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+}
+
+/* Estilo para dropdown item ativo */
+.dropdown-item.active {
+    background: linear-gradient(135deg,#0670b6 0%, #0760a8 100%) !important;
+    color: #ffffff !important;
+}
+
+/* Collapsed Sidebar */
+.sidebar.collapsed {
+    width: var(--sidebar-collapsed-width) !important;
+}
+
+.sidebar.collapsed .sidebar-text {
+    opacity: 0;
+    display: none;
+}
+
+.sidebar.collapsed .dropdown-toggle::after {
+    display: none;
+}
+
+.btn-flutuante {
+  bottom: 20px;            /* distância da borda inferior */
+  right: 20px;             /* distância da borda direita */
+  z-index: 9999;           /* garante que fica acima de tudo */
+}
+
+/* Mobile Sidebar */
+@media (max-width: 768px) {
+    .sidebar {
+        transform: translateX(-100%);
+        width: 100% !important;
+        max-width: 300px;
+    }
+    
+    .sidebar.show {
+        transform: translateX(0);
+    }
+}
+</style>
+<script>
+// Script unificado da sidebar sem conflitos
+document.addEventListener('DOMContentLoaded', function() {
+    
+    // ========================
+    // FUNÇÕES DA SIDEBAR
+    // ========================
+    
+    // Função para alternar sidebar desktop
+    window.toggleSidebar = function() {
+        const sidebar = document.getElementById('sidebar');
+        const contentArea = document.getElementById('contentArea');
+        const toggleIcon = document.getElementById('toggleIcon');
+        
+        if (sidebar && contentArea && toggleIcon) {
+            sidebar.classList.toggle('collapsed');
+            contentArea.classList.toggle('sidebar-collapsed');
+            
+            if (sidebar.classList.contains('collapsed')) {
+                toggleIcon.className = 'bi bi-chevron-right btn-flutuante';
+            } else {
+                toggleIcon.className = 'bi bi-chevron-left';
+            }
+        }
+    };
+
+    // Função para alternar sidebar mobile
+    window.toggleMobileSidebar = function() {
+        const sidebar = document.getElementById('sidebar');
+        if (sidebar) {
+            sidebar.classList.toggle('show');
+        }
+    };
+
+    // ========================
+    // EVENT LISTENERS
+    // ========================
+    
+    // Fechar sidebar mobile ao clicar fora
+    document.addEventListener('click', function(event) {
+        const sidebar = document.getElementById('sidebar');
+        if (!sidebar) return;
+        
+        const isClickInsideSidebar = sidebar.contains(event.target);
+        const isMobileToggle = event.target.closest('[onclick*="toggleMobileSidebar"]') ||
+                              event.target.closest('.mobile-sidebar-toggle');
+        
+        if (!isClickInsideSidebar && !isMobileToggle && window.innerWidth < 768) {
+            sidebar.classList.remove('show');
+        }
+    });
+
+    // ========================
+    // MENU ATIVO BASEADO NA URL
+    // ========================
+    
+    const currentUrl = window.location.pathname;
+    
+    // Mapeamento de URLs para identificadores de menu
+    const urlToMenu = {
+        '/': 'dashboard',
+        '/dashboard/': 'dashboard',
+
+        '/item/list/': 'item-list',
+        '/item/create/': 'item-list',
+
+        '/item/equivalent/list/': 'item-equivalent',
+        '/item/equivalent/create/': 'item-equivalent',
+
+        '/location/list/': 'localizacao',
+        '/location/create/': 'localizacao',
+
+        '/inventory/list/': 'inventario',
+        '/inventory/create/': 'inventario',
+        '/inventory/1bavex/spu/': 'inventario_spu',
+
+        '/inflow/list/': 'entradas',
+        '/inflow/create/': 'entradas',
+
+        '/outflow/list/': 'saidas',
+        '/outflow/create/': 'saidas',
+
+        '/order/list/': 'pedidos',
+        '/order/create/': 'pedidos',
+
+        '/reports/': 'relatorios',
+        '/analytics/': 'analytics',
+        '/categories/': 'categorias',
+        '/category/': 'categorias'
+    };
+    
+    // Função para encontrar o menu correspondente à URL atual
+    function getActiveMenu() {
+    // 1️⃣ Correspondência exata
+    if (urlToMenu[currentUrl]) return urlToMenu[currentUrl];
+
+    // 2️⃣ Correspondência parcial (para subrotas)
+    for (const [url, menu] of Object.entries(urlToMenu)) {
+        if (currentUrl.startsWith(url)) return menu;
+    }
+
+    // 3️⃣ Expressões regulares para URLs com IDs (ex: /order/12/details/)
+    const dynamicPatterns = [
+        { regex: /^\/item\/\d+\/(details|update|delete)\/?$/, menu: 'item-list' },
+        { regex: /^\/item\/\d+\/equivalent\/delete\/?$/, menu: 'item-equivalent' },
+        { regex: /^\/location\/\d+\/(details|update|delete)\/?$/, menu: 'localizacao' },
+        { regex: /^\/inventory\/\d+\/(details|update|delete)\/?$/, menu: 'inventario' },
+        { regex: /^\/inflow\/\d+\/(details|update|delete)\/?$/, menu: 'entradas' },
+        { regex: /^\/outflow\/\d+\/(details|update|delete)\/?$/, menu: 'saidas' },
+        { regex: /^\/order\/\d+\/(details|update|delete)\/?$/, menu: 'pedidos' }
+    ];
+
+    for (const pattern of dynamicPatterns) {
+        if (pattern.regex.test(currentUrl)) return pattern.menu;
+    }
+
+    // 4️⃣ Fallback
+    return 'dashboard';
+}
+    // ========================
+    // APLICAR MENU ATIVO
+    // ========================
+    
+    function setActiveMenu() {
+        const activeMenu = getActiveMenu();
+        const menuItems = document.querySelectorAll('.sidebar-link, .dropdown-item');
+        
+        // Remove classe active de todos os elementos
+        menuItems.forEach(item => {
+            item.classList.remove('active');
+        });
+        
+        // Remove active de todos os dropdowns
+        const dropdownToggles = document.querySelectorAll('.dropdown-toggle');
+        dropdownToggles.forEach(toggle => {
+            toggle.classList.remove('active');
+        });
+        
+        // Adiciona classe active ao item correspondente
+        const activeElement = document.querySelector(`[data-menu="${activeMenu}"]`);
+        if (activeElement) {
+            activeElement.classList.add('active');
+            
+            // Se for um item de dropdown, também marca o dropdown como ativo
+            if (activeElement.classList.contains('dropdown-item')) {
+                const dropdownButton = activeElement.closest('.dropdown')?.querySelector('.dropdown-toggle');
+                if (dropdownButton) {
+                    dropdownButton.classList.add('active');
+                }
+            }
+        }
+    }
+    
+    // Aplicar menu ativo na inicialização
+    setActiveMenu();
+    
+    // ========================
+    // EVENT LISTENERS PARA CLIQUES
+    // ========================
+    
+    // Adiciona event listeners para cliques nos menus (sem conflito com outros scripts)
+    const menuItems = document.querySelectorAll('.sidebar-link, .dropdown-item');
+    menuItems.forEach(item => {
+        item.addEventListener('click', function(e) {
+            // Só previne o comportamento padrão se for realmente um link vazio
+            if (this.getAttribute('href') === '#' || this.getAttribute('href') === '') {
+                e.preventDefault();
+            }
+            
+            // Aplica a lógica de menu ativo apenas se não for um link real
+            const href = this.getAttribute('href');
+            if (!href || href === '#' || href === '') {
+                // Remove active de todos
+                menuItems.forEach(menuItem => {
+                    menuItem.classList.remove('active');
+                });
+                
+                // Remove active de todos os dropdowns
+                const dropdownToggles = document.querySelectorAll('.dropdown-toggle');
+                dropdownToggles.forEach(toggle => {
+                    toggle.classList.remove('active');
+                });
+                
+                // Adiciona active no clicado
+                this.classList.add('active');
+                
+                // Se for um dropdown item, também ativa o dropdown
+                if (this.classList.contains('dropdown-item')) {
+                    const dropdownButton = this.closest('.dropdown')?.querySelector('.dropdown-toggle');
+                    if (dropdownButton) {
+                        dropdownButton.classList.add('active');
+                    }
+                }
+            }
+        });
+    });
+    
+    // ========================
+    // COMPATIBILIDADE COM OUTROS SCRIPTS
+    // ========================
+    
+    // Reaplica o menu ativo após navegação via AJAX ou SPA
+    window.addEventListener('popstate', function() {
+        setTimeout(setActiveMenu, 100);
+    });
+    
+    // Função pública para reaplica menu ativo (caso outros scripts precisem)
+    window.updateActiveMenu = function() {
+        setActiveMenu();
+    };
+    
+    // Observa mudanças no DOM para reaplicar menu ativo se necessário
+    const observer = new MutationObserver(function(mutations) {
+        mutations.forEach(function(mutation) {
+            if (mutation.type === 'childList') {
+                // Verifica se novos elementos de menu foram adicionados
+                const addedNodes = Array.from(mutation.addedNodes);
+                const hasMenuItems = addedNodes.some(node => 
+                    node.nodeType === 1 && 
+                    (node.classList?.contains('sidebar-link') || 
+                     node.classList?.contains('dropdown-item') ||
+                     node.querySelector?.('.sidebar-link, .dropdown-item'))
+                );
+                
+                if (hasMenuItems) {
+                    setTimeout(setActiveMenu, 50);
+                }
+            }
+        });
+    });
+    
+    // Observa o sidebar para mudanças
+    const sidebar = document.getElementById('sidebar');
+    if (sidebar) {
+        observer.observe(sidebar, { 
+            childList: true, 
+            subtree: true 
+        });
+    }
+    
+    // ========================
+    // DEBUG (remover em produção)
+    // ========================
+    
+    if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+        console.log('🔍 Sidebar Debug:', {
+            currentUrl: currentUrl,
+            activeMenu: getActiveMenu(),
+            availableMenus: Object.values(urlToMenu)
+        });
+    }
+});
+</script>

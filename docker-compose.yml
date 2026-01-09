@@ -1,0 +1,73 @@
+services:
+  sge_db:
+    image: postgres:15-alpine
+    container_name: sge_db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB:-sge}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - sge_network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  sge_web:
+    build: .
+    container_name: sge_web
+    restart: unless-stopped
+    command: >
+      sh -c "python manage.py migrate &&
+             python manage.py collectstatic --noinput &&
+             gunicorn --bind 0.0.0.0:8000 --workers 3 app.wsgi:application"
+    expose:
+      - "8000"
+    environment:
+      DJANGO_ENV: prd
+      DEBUG: "False"
+      ALLOWED_HOSTS: ${ALLOWED_HOSTS}
+      SECRET_KEY: ${SECRET_KEY}
+      POSTGRES_DB: ${POSTGRES_DB:-sge}
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_HOST: sge_db
+      POSTGRES_PORT: 5432
+    depends_on:
+      sge_db:
+        condition: service_healthy
+    networks:
+      - sge_network
+    volumes:
+      - static_volume:/app/static
+      - media_volume:/app/media
+
+  nginx:
+    image: nginx:alpine
+    container_name: sge_nginx
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx/conf.d:/etc/nginx/conf.d:ro
+      - static_volume:/app/static:ro
+      - media_volume:/app/media:ro
+    depends_on:
+      - sge_web
+    networks:
+      - sge_network
+
+volumes:
+  postgres_data:
+  static_volume:
+  media_volume:
+
+networks:
+  sge_network:
+    driver: bridge

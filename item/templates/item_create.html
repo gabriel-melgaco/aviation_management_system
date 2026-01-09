@@ -1,0 +1,115 @@
+<!-- item_create.html -->
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Novo Item - SGS 1º BAvEx{% endblock %}
+
+{% block extra_css %}
+<link href="{% static 'css/item_create.css' %}" rel="stylesheet">
+{% endblock %}
+
+{% block content %}
+<!-- Page Header -->
+<div class="page-header">
+    <div class="d-flex justify-content-between align-items-center">
+        <div>
+            <h1 class="fw-bold mb-2">
+                <i class="bi bi-plus-circle me-3"></i>Cadastrar Novo Item
+            </h1>
+            <p class="text-muted mb-0">Adicione um novo item ao inventário do sistema</p>
+        </div>
+        <a href="{% url 'item_list' %}" class="btn btn-outline-secondary">
+            <i class="bi bi-arrow-left me-2"></i>Voltar
+        </a>
+    </div>
+</div>
+
+<!-- Form -->
+<div class="form-container">
+    <div class="form-header">
+        <div class="d-flex align-items-center">
+            <i class="bi bi-box-seam me-3 fs-1"></i>
+            <div>
+                <h3 class="mb-1">Informações do Item</h3>
+                <p class="mb-0 opacity-75">Preencha todos os campos obrigatórios</p>
+            </div>
+        </div>
+    </div>
+    
+    <div class="form-body">
+        <form method="post" novalidate>
+            {% csrf_token %}
+            
+            {% if form.errors %}
+                <div class="alert alert-danger border-0 mb-4" style="background: rgba(220, 53, 69, 0.1); border-left: 4px solid #dc3545 !important;">
+                    <i class="bi bi-exclamation-triangle me-2"></i>
+                    <strong>Erro no formulário:</strong>
+                    <ul class="mb-0 mt-2">
+                        {% for field in form %}
+                            {% for error in field.errors %}
+                                <li>{{ field.label }}: {{ error }}</li>
+                            {% endfor %}
+                        {% endfor %}
+                    </ul>
+                </div>
+            {% endif %}
+            
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label class="form-label required-field">{{ form.mpn.label }}</label>
+                        {{ form.mpn }}
+                        <small class="form-text text-muted">Código principal de identificação da peça</small>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label class="form-label">{{ form.pn.label }}</label>
+                        {{ form.pn }}
+                        <small class="form-text text-muted">Número da peça (opcional)</small>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label required-field">{{ form.name.label }}</label>
+                {{ form.name }}
+                <small class="form-text text-muted">Denominação completa do item</small>
+            </div>
+            
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label class="form-label">{{ form.doc.label }}</label>
+                        {{ form.doc }}
+                        <small class="form-text text-muted">Documento de referência</small>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label class="form-label">{{ form.tec_pub.label }}</label>
+                        {{ form.tec_pub }}
+                        <small class="form-text text-muted">Publicação técnica relacionada</small>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label">{{ form.aircraft_doc.label }}</label>
+                {{ form.aircraft_doc }}
+                <small class="form-text text-muted">Documento da aeronave associada</small>
+            </div>
+            
+            <!-- Action Buttons -->
+            <div class="d-flex justify-content-between align-items-center pt-4 mt-4 border-top border-secondary">
+                <a href="{% url 'item_list' %}" class="btn btn-secondary px-4">
+                    <i class="bi bi-x-lg me-2"></i>Cancelar
+                </a>
+                <button type="submit" class="btn btn-success px-4">
+                    <i class="bi bi-check-lg me-2"></i>Salvar Item
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

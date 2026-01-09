@@ -1,0 +1,103 @@
+<!-- item_detail.html -->
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ object.name }} - Detalhes{% endblock %}
+
+{% block extra_css %}
+<link href="{% static 'css/inflow_detail.css' %}" rel="stylesheet">
+{% endblock %}
+
+{% block content %}
+<!-- Page Header -->
+<div class="page-header">
+    <div class="d-flex justify-content-between align-items-center">
+        <div>
+            <h1 class="fw-bold mb-2">
+                <i class="bi bi-info-circle me-3"></i>Detalhes de Entrada
+            </h1>
+            <p class="text-muted mb-0">Informações completas da entrada selecionada</p>
+        </div>
+        <div class="d-flex gap-2">
+            <a href="{% url 'inflow_list' %}" class="btn btn-outline-secondary">
+                <i class="bi bi-arrow-left me-2"></i>Voltar
+            </a>
+        </div>
+    </div>
+</div>
+
+<!-- Item Details -->
+<div class="detail-card">
+    <div class="detail-header">
+        <div class="d-flex align-items-center">
+            <div class="me-4">
+                <i class="bi bi-box-seam display-4"></i>
+            </div>
+            <div>
+                <h2 class="mb-1">{{ object.item }}</h2>
+                <div class="d-flex gap-3">
+                    <span class="badge bg-light text-dark">Qtde: {{ object.quantity }}</span>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="detail-info">
+        <div class="row">
+            <div class="col-md-6">
+                <div class="info-item">
+                    <div class="info-label">
+                        <i class="bi bi-hash me-1"></i>Descrição
+                    </div>
+                    <div class="info-value">{{ object.description }}</div>
+                </div>
+                
+                <div class="info-item">
+                    <div class="info-label">
+                        <i class="bi bi-tag me-1"></i>Criado em:
+                    </div>
+                    <div class="info-value">{{ object.created_at}}</div>
+                </div>
+                
+                <div class="info-item">
+                    <div class="info-label">
+                        <i class="bi bi-file-text me-1"></i>Atualizado por:
+                    </div>
+                    <div class="info-value">{{ object.updated_at|default:"Não informado" }}</div>
+                </div>
+                
+                <div class="info-item">
+                    <div class="info-label">
+                        <i class="bi bi-book me-1"></i>Criado por:
+                    </div>
+                    <div class="info-value">{{ object.created_by }}</div>
+                </div>
+            </div>
+            
+        </div>
+        
+        <!-- Equivalents Section -->
+        {% if object.all_equivalents %}
+        <div class="info-item mt-4">
+            <div class="info-label">
+                <i class="bi bi-arrow-left-right me-1"></i>Itens Equivalentes
+            </div>
+            <div class="info-value">
+                <div class="d-flex flex-wrap gap-2 mt-2">
+                    {% for eq in object.all_equivalents %}
+                        <span class="badge bg-primary">{{ eq.mpn }} - {{ eq.name }}</span>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Action Buttons -->
+<div class="d-flex justify-content-center gap-3 mt-4">
+    <a href="{% url 'inflow_list' %}" class="btn btn-secondary px-4">
+        <i class="bi bi-arrow-left me-2"></i>Voltar à Lista
+    </a>
+</div>
+{% endblock %}

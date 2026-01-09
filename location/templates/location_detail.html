@@ -1,0 +1,81 @@
+<!-- item_detail.html -->
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ object.name }} - Detalhes{% endblock %}
+
+{% block extra_css %}
+<link href="{% static 'css/location_detail.css' %}" rel="stylesheet">
+{% endblock %}
+
+{% block content %}
+<!-- Page Header -->
+<div class="page-header">
+    <div class="d-flex justify-content-between align-items-center">
+        <div>
+            <h1 class="fw-bold mb-2">
+                <i class="bi bi-info-circle me-3"></i>Detalhes da Localização
+            </h1>
+            <p class="text-muted mb-0">Informações completas da Localização selecionado</p>
+        </div>
+        <div class="d-flex gap-2">
+            {% if perms.location.change_location %}
+            <a href="{% url 'location_update' object.id %}" class="btn btn-warning">
+                <i class="bi bi-pencil me-2"></i>Editar
+            </a>
+            {% endif %}
+            <a href="{% url 'location_list' %}" class="btn btn-outline-secondary">
+                <i class="bi bi-arrow-left me-2"></i>Voltar
+            </a>
+        </div>
+    </div>
+</div>
+
+<!-- location Details -->
+<div class="detail-card">
+    <div class="detail-header">
+        <div class="d-flex align-items-center">
+            <div class="me-4">
+                <i class="bi bi-geo-alt display-4"></i>
+            </div>
+            <div>
+                <h2 class="mb-1">{{ object.om }}</h2>
+                <div class="d-flex gap-3">
+                    {% if object.section %}
+                    <span class="badge bg-light text-dark">Seção: {{ object.section }}</span>
+                    {% endif %}
+                    {% if object.shelf %}
+                        <span class="badge bg-light text-dark">Prateleira: {{ object.shelf }}</span>
+                    {% endif %}
+                    {% if object.case %}
+                        <span class="badge bg-light text-dark">Case: {{ object.case }}</span>
+                    {% endif %}
+                    {% if object.item_number %}
+                        <span class="badge bg-light text-dark">Nº do Item: {{ object.item_number }}</span>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    
+
+<!-- Action Buttons -->
+<div class="d-flex justify-content-center gap-3 mt-4">
+    {% if perms.location.change_location %}
+    <a href="{% url 'location_update' object.id %}" class="btn btn-warning px-4">
+        <i class="bi bi-pencil me-2"></i>Editar Item
+    </a>
+    {% endif %}
+    {% if perms.location.delete_location %}
+    <a href="{% url 'location_delete' object.id %}" 
+       class="btn btn-danger px-4"
+       onclick="return confirm('Tem certeza que deseja excluir este item?')">
+        <i class="bi bi-trash me-2"></i>Excluir Item
+    </a>
+    {% endif %}
+    <a href="{% url 'location_list' %}" class="btn btn-secondary px-4">
+        <i class="bi bi-arrow-left me-2"></i>Voltar à Lista
+    </a>
+</div>
+{% endblock %}

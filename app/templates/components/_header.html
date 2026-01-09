@@ -1,0 +1,77 @@
+<!-- _header.html -->
+ {% load static %}
+
+<nav class="navbar navbar-expand-lg fixed-top" style="background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%); height: 70px; box-shadow: 0 2px 20px rgba(0,0,0,0.1); backdrop-filter: blur(10px);">
+    <div class="container-fluid px-4">
+        <!-- Brand -->
+        <a class="navbar-brand d-flex align-items-center text-white fw-bold" href="{% url 'home' %}">
+            <div class="me-3 p-2 rounded-3" style="background: rgba(255,255,255,0.2);">
+                 <img src="{% static 'image/logo.png' %}" alt="Logo SGE" width="70x70">
+            </div>
+            <div>
+                <div class="fs-5">Σ SIGMA</div>
+                <small class="opacity-75" style="font-size: 0.7rem;">1º BAvEx</small>
+            </div>
+        </a>
+        
+        <!-- Mobile Toggle -->
+        <button class="btn btn-outline-light d-lg-none ms-auto me-2" type="button" onclick="toggleMobileSidebar()">
+            <i class="bi bi-list fs-5"></i>
+        </button>
+        
+        <!-- Desktop Controls -->
+        <div class="d-none d-lg-flex align-items-center gap-3">
+            <!-- Search -->
+            <div class="position-relative">
+                <input type="search" class="form-control bg-dark border-0 text-white ps-5" 
+                       placeholder="Buscar..." style="width: 250px; border-radius: 25px;">
+                <i class="bi bi-search position-absolute top-50 start-0 translate-middle-y ms-3 text-white-50"></i>
+            </div>
+            
+            <!-- Notifications -->
+            <div class="dropdown">
+                <button class="btn btn-outline-light position-relative" data-bs-toggle="dropdown">
+                    <i class="bi bi-bell"></i>
+                    <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+                        3
+                    </span>
+                </button>
+                <ul class="dropdown-menu dropdown-menu-end dropdown-menu-dark">
+                    <li><h6 class="dropdown-header">Notificações</h6></li>
+                    <li><a class="dropdown-item" href="#">
+                        <i class="bi bi-exclamation-circle me-2"></i>Estoque baixo: Item XYZ
+                    </a></li>
+                    <li><a class="dropdown-item" href="#">
+                        <i class="bi bi-check-circle me-2"></i>Pedido #123 aprovado
+                    </a></li>
+                    <li><hr class="dropdown-divider"></li>
+                    <li><a class="dropdown-item text-center" href="#">Ver todas</a></li>
+                </ul>
+            </div>
+            
+            <!-- User Menu -->
+            <div class="dropdown">
+                <button class="btn btn-outline-light dropdown-toggle d-flex align-items-center" data-bs-toggle="dropdown">
+                    <div class="bg-primary rounded-circle d-flex align-items-center justify-content-center me-2" 
+                         style="width: 32px; height: 32px;">
+                        <i class="bi bi-person"></i>
+                    </div>
+                    <span>{{ user.username|default:'Usuário' }}</span>
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-end dropdown-menu-dark">
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item">
+                                <form action="{% url 'logout' %}" method="post" id="logout-form" class="nav-link px-0 align-middle">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn btn-link text-decoration-none text-reset nav-link px-0 align-middle">
+                                        <i class="bi bi-box-arrow-right fs-4 align-middle"></i>
+                                        <span class="ms-1 align-middle">Sair</span>
+                                    </button>
+                                </form>
+                                </a>
+                            </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</nav>

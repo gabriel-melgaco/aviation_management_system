@@ -1,0 +1,21 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block extra_css %}
+<link href="{% static 'css/_metrics.css' %}" rel="stylesheet">
+<link href="{% static 'css/_charts.css' %}" rel="stylesheet">
+{% endblock %}
+
+
+{% block title %}
+SGE 1º BAvEx - Home
+{% endblock %}
+
+
+{% block content %}
+
+    {% include 'components/_metrics.html' %}
+    {% include 'components/_charts.html' %}
+
+
+{% endblock %}

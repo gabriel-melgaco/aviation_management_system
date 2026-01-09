@@ -1,0 +1,171 @@
+<!-- item_equivalent_list.html -->
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}SGS 1º BAvEx - Equivalências de Itens{% endblock %}
+
+{% block extra_css %}
+<link href="{% static 'css/item_equivalent_list.css' %}" rel="stylesheet">
+{% endblock %}
+
+{% block content %}
+<!-- Page Header -->
+<div class="page-header">
+    <div class="d-flex justify-content-between align-items-center">
+        <div>
+            <h1 class="fw-bold mb-2">
+                <i class="bi bi-arrow-left-right me-3"></i>Equivalências de Itens
+            </h1>
+            <p class="text-muted mb-0">Gerencie as relações de equivalência entre itens</p>
+        </div>
+    </div>
+</div>
+
+<!-- Search and Actions -->
+<div class="row mb-4">
+    <div class="col-lg-8">
+        <div class="search-container">
+            <form method="get" action="{% url 'item_list_equivalent' %}">
+                <div class="input-group">
+                    <span class="input-group-text bg-transparent border-0">
+                        <i class="bi bi-search text-muted"></i>
+                    </span>
+                    <input type="text" 
+                           class="form-control bg-transparent border-0" 
+                           name="search" 
+                           placeholder="Buscar por item ou equivalente..." 
+                           value="{{ request.GET.search }}"
+                           style="box-shadow: none;">
+                    <button type="submit" class="btn btn-info px-4">
+                        <i class="bi bi-search me-2"></i>Buscar
+                    </button>
+                    {% if request.GET.search %}
+                        <a href="{% url 'item_list_equivalent' %}" class="btn btn-outline-secondary">
+                            <i class="bi bi-x-lg"></i>
+                        </a>
+                    {% endif %}
+                </div>
+            </form>
+        </div>
+    </div>
+    <div class="col-lg-4">
+        <div class="d-flex gap-2 justify-content-end">
+            {% if perms.item.add_itemequivalent %}
+            <a href="{% url 'item_create_equivalent' %}" class="btn btn-success px-4">
+                <i class="bi bi-plus-lg me-2"></i>Nova Equivalência
+            </a>
+            {% endif %}
+            <div class="dropdown">
+                <button class="btn btn-outline-info dropdown-toggle" data-bs-toggle="dropdown">
+                    <i class="bi bi-three-dots"></i>
+                </button>
+                <ul class="dropdown-menu dropdown-menu-end dropdown-menu-dark">
+                    <li><a class="dropdown-item" href="#">
+                        <i class="bi bi-download me-2"></i>Exportar Equivalências
+                    </a></li>
+                    <li><a class="dropdown-item" href="#">
+                        <i class="bi bi-graph-up me-2"></i>Relatório de Relações
+                    </a></li>
+                    <li><hr class="dropdown-divider"></li>
+                    <li><a class="dropdown-item" href="{% url 'item_list' %}">
+                        <i class="bi bi-box me-2"></i>Ver Todos os Itens
+                    </a></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Search Results Info -->
+{% if request.GET.search %}
+<div class="alert alert-info border-0" style="background: rgba(13, 202, 240, 0.1); border-left: 4px solid #0dcaf0 !important;">
+    <i class="bi bi-info-circle me-2"></i>
+    Encontradas <strong>{{ items.count }}</strong> equivalências para "<strong>{{ request.GET.search }}</strong>"
+</div>
+{% endif %}
+
+<!-- Equivalencies Table -->
+<div class="table-container">
+    {% if items %}
+        <div class="table-responsive">
+            <table class="table table-dark table-hover mb-0">
+                <thead>
+                    <tr>
+                        <th width="40%"><i class="bi bi-box me-2"></i>Item Principal</th>
+                        <th width="40%"><i class="bi bi-arrow-left-right me-2"></i>Item Equivalente</th>
+                        <th width="20%"><i class="bi bi-gear me-2"></i>Ações</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in items %}
+                    <tr>
+                        <td>
+                            <div class="item-card">
+                                <div class="fw-semibold mb-1">{{ item.item.name }}</div>
+                                <div class="d-flex gap-2">
+                                    <span class="badge bg-primary">{{ item.item.mpn }}</span>
+                                    {% if item.item.pn %}
+                                        <span class="badge bg-secondary">PN: {{ item.item.pn }}</span>
+                                    {% endif %}
+                                </div>
+                                {% if item.item.aircraft_doc %}
+                                    <small class="text-muted">
+                                        <i class="bi bi-airplane me-1"></i>{{ item.item.aircraft_doc }}
+                                    </small>
+                                {% endif %}
+                            </div>
+                        </td>
+                        <td>
+                            <div class="item-card">
+                                <div class="fw-semibold mb-1">{{ item.equivalent_item.name }}</div>
+                                <div class="d-flex gap-2">
+                                    <span class="badge bg-primary">{{ item.equivalent_item.mpn }}</span>
+                                    {% if item.equivalent_item.pn %}
+                                        <span class="badge bg-secondary">PN: {{ item.equivalent_item.pn }}</span>
+                                    {% endif %}
+                                </div>
+                                {% if item.equivalent_item.aircraft_doc %}
+                                    <small class="text-muted">
+                                        <i class="bi bi-airplane me-1"></i>{{ item.equivalent_item.aircraft_doc }}
+                                    </small>
+                                {% endif %}
+                            </div>
+                        </td>
+                        <td>
+                            <div class="d-flex">
+                                <a href="{% url 'item_delete_equivalent' item.id %}" 
+                                   class="btn btn-danger btn-action" 
+                                   title="Excluir equivalência">
+                                    <i class="bi bi-trash"></i>
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    {% else %}
+        <div class="text-center py-5">
+            <i class="bi bi-arrow-left-right display-1 text-muted mb-3"></i>
+            <h4 class="text-muted">Nenhuma equivalência encontrada</h4>
+            <p class="text-muted">
+                {% if request.GET.search %}
+                    Tente buscar com termos diferentes ou 
+                    <a href="{% url 'item_list_equivalent' %}" class="text-decoration-none">limpar a busca</a>
+                {% else %}
+                    Comece criando relações de equivalência entre itens
+                {% endif %}
+            </p>
+            {% if not request.GET.search %}
+                <a href="{% url 'item_create_equivalent' %}" class="btn btn-success">
+                    <i class="bi bi-plus-lg me-2"></i>Criar Primeira Equivalência
+                </a>
+            {% endif %}
+        </div>
+    {% endif %}
+</div>
+
+<!-- Pagination -->
+{% include 'components/_pagination.html' %}
+{% endblock %}

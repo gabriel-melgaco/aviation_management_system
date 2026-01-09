@@ -1,0 +1,355 @@
+<!-- order_list.html -->
+{% extends 'base.html' %}
+{% load static %}
+
+{% block extra_css %}
+<link href="{% static 'css/order_list.css' %}" rel="stylesheet">
+{% endblock %}
+
+{% block title %}
+SGS 1º BAvEx - Pedidos
+{% endblock %}
+
+{% block content %}
+<!-- Page Header -->
+<div class="page-header">
+    <div class="d-flex justify-content-between align-items-center">
+        <div>
+            <h1 class="fw-bold mb-2">
+                <i class="bi bi-cart-check-fill me-3"></i>Gestão de Pedidos
+            </h1>
+            <p class="text-muted mb-0">Acompanhe e gerencie todos os pedidos RMS e FSM</p>
+        </div>
+    </div>
+</div>
+
+<!-- Statistics Cards -->
+<div class="order-stats">
+    <!-- Total -->
+    <a href="?" class="stat-card-order total" style="text-decoration: none;">
+        <div class="d-flex align-items-center justify-content-between mb-2">
+            <div class="stat-icon" style="width: 45px; height: 45px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 10px; display: flex; align-items: center; justify-content: center;">
+                <i class="bi bi-collection-fill" style="font-size: 1.5rem; color: #fff;"></i>
+            </div>
+        </div>
+        <div style="font-size: 0.8rem; color: rgba(255, 255, 255, 0.6); text-transform: uppercase; letter-spacing: 0.5px;">Total de Pedidos</div>
+        <div style="font-size: 2rem; font-weight: 700; color: #fff; line-height: 1;">{{ total_orders }}</div>
+    </a>
+
+    <!-- Abertos -->
+    <a href="?status=OPEN" class="stat-card-order open" style="text-decoration: none;">
+        <div class="d-flex align-items-center justify-content-between mb-2">
+            <div class="stat-icon" style="width: 45px; height: 45px; background: linear-gradient(135deg, #28a745 0%, #20c997 100%); border-radius: 10px; display: flex; align-items: center; justify-content: center;">
+                <i class="bi bi-folder2-open" style="font-size: 1.5rem; color: #fff;"></i>
+            </div>
+        </div>
+        <div style="font-size: 0.8rem; color: rgba(255, 255, 255, 0.6); text-transform: uppercase; letter-spacing: 0.5px;">Pedidos Abertos - Não atendidos</div>
+        <div style="font-size: 2rem; font-weight: 700; color: #fff; line-height: 1;">{{ open_orders }}</div>
+    </a>
+
+    <!-- Finalizados -->
+    <a href="?status=CLOSE" class="stat-card-order closed" style="text-decoration: none;">
+        <div class="d-flex align-items-center justify-content-between mb-2">
+            <div class="stat-icon" style="width: 45px; height: 45px; background: linear-gradient(135deg, #6c757d 0%, #545b62 100%); border-radius: 10px; display: flex; align-items: center; justify-content: center;">
+                <i class="bi bi-check-circle-fill" style="font-size: 1.5rem; color: #fff;"></i>
+            </div>
+        </div>
+        <div style="font-size: 0.8rem; color: rgba(255, 255, 255, 0.6); text-transform: uppercase; letter-spacing: 0.5px;">Finalizados - Atendidos</div>
+        <div style="font-size: 2rem; font-weight: 700; color: #fff; line-height: 1;">{{ closed_orders }}</div>
+    </a>
+
+    <!-- RMS -->
+    <a href="?order_type=RMS" class="stat-card-order rms" style="text-decoration: none;">
+        <div class="d-flex align-items-center justify-content-between mb-2">
+            <div class="stat-icon" style="width: 45px; height: 45px; background: linear-gradient(135deg, #ffc107 0%, #ff9800 100%); border-radius: 10px; display: flex; align-items: center; justify-content: center;">
+                <i class="bi bi-wrench-adjustable" style="font-size: 1.5rem; color: #000;"></i>
+            </div>
+        </div>
+        <div style="font-size: 0.8rem; color: rgba(255, 255, 255, 0.6); text-transform: uppercase; letter-spacing: 0.5px;">Pedidos RMS</div>
+        <div style="font-size: 2rem; font-weight: 700; color: #fff; line-height: 1;">{{ rms_orders }}</div>
+    </a>
+
+    <!-- FSM -->
+    <a href="?order_type=FSM" class="stat-card-order fsm" style="text-decoration: none;">
+        <div class="d-flex align-items-center justify-content-between mb-2">
+            <div class="stat-icon" style="width: 45px; height: 45px; background: linear-gradient(135deg, #17a2b8 0%, #138496 100%); border-radius: 10px; display: flex; align-items: center; justify-content: center;">
+                <i class="bi bi-tools" style="font-size: 1.5rem; color: #fff;"></i>
+            </div>
+        </div>
+        <div style="font-size: 0.8rem; color: rgba(255, 255, 255, 0.6); text-transform: uppercase; letter-spacing: 0.5px;">Pedidos FSM</div>
+        <div style="font-size: 2rem; font-weight: 700; color: #fff; line-height: 1;">{{ fsm_orders }}</div>
+    </a>
+</div>
+
+<!-- Search and Filters -->
+<div class="row mb-4">
+    <div class="col-lg-12">
+        <div class="search-container">
+            <form method="get" action="{% url 'order_list' %}">
+                <div class="row g-3">
+                    <!-- Busca -->
+                    <div class="col-md-4">
+                        <div class="input-group">
+                            <span class="input-group-text bg-transparent border-0">
+                                <i class="bi bi-search text-muted"></i>
+                            </span>
+                            <input type="text" 
+                                   class="form-control bg-transparent border-0" 
+                                   name="search" 
+                                   placeholder="Buscar por número, solicitante..." 
+                                   value="{{ request.GET.search }}"
+                                   style="box-shadow: none; color: #ffffff;">
+                        </div>
+                    </div>
+
+                    <!-- Filtro Status -->
+                    <div class="col-md-2">
+                        <select name="status" class="filter-select form-select">
+                            <option value="">Todos Status</option>
+                            <option value="NOT" {% if request.GET.status == 'NOT' %}selected{% endif %}>Não Enviado</option>
+                            <option value="OPEN" {% if request.GET.status == 'OPEN' %}selected{% endif %}>Aberto - Não Atendido</option>
+                            <option value="OPEN2" {% if request.GET.status == 'OPEN2' %}selected{% endif %}>Aberto - Atendido Parcialmente</option>
+                            <option value="CLOSE" {% if request.GET.status == 'CLOSE' %}selected{% endif %}>Finalizado - Atendido</option>
+                            <option value="CLOSE2" {% if request.GET.status == 'CLOSE2' %}selected{% endif %}>Finalizado - Não Atendido</option>
+                            <option value="CANCEL" {% if request.GET.status == 'CANCEL' %}selected{% endif %}>Cancelado</option>
+                        </select>
+                    </div>
+
+                    <!-- Filtro Tipo -->
+                    <div class="col-md-2">
+                        <select name="order_type" class="filter-select form-select">
+                            <option value="">Todos Tipos</option>
+                            <option value="RMS" {% if request.GET.order_type == 'RMS' %}selected{% endif %}>RMS</option>
+                            <option value="FSM" {% if request.GET.order_type == 'FSM' %}selected{% endif %}>FSM</option>
+                        </select>
+                    </div>
+
+                    <!-- Botões -->
+                    <div class="col-md-4 d-flex gap-2">
+                        <button type="submit" class="btn btn-primary flex-fill">
+                            <i class="bi bi-search me-2"></i>Buscar
+                        </button>
+                        {% if request.GET.search or request.GET.status or request.GET.order_type %}
+                        <a href="{% url 'order_list' %}" class="btn btn-outline-secondary">
+                            <i class="bi bi-x-lg"></i>
+                        </a>
+                        {% endif %}
+                        {% if perms.order.add_order %}
+                        <a href="{% url 'order_create' %}" class="btn btn-success">
+                            <i class="bi bi-plus-lg me-2"></i>Novo Pedido
+                        </a>
+                        {% endif %}
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Active Filters -->
+{% if request.GET.search or request.GET.status or request.GET.order_type %}
+<div class="mb-3 d-flex gap-2 flex-wrap">
+    {% if request.GET.search %}
+    <span class="badge bg-primary" style="padding: 0.5rem 0.875rem; font-size: 0.875rem;">
+        <i class="bi bi-search me-1"></i>Busca: "{{ request.GET.search }}"
+    </span>
+    {% endif %}
+    {% if request.GET.status %}
+    <span class="badge badge-status {{ request.GET.status|lower }}">
+        <i class="bi bi-funnel-fill me-1"></i>
+        Status:
+        {% if request.GET.status == 'OPEN' %}
+            Aberto - Não atendido
+        {% elif request.GET.status == 'NOT' %}
+            Não enviado
+        {% elif request.GET.status == 'OPEN2' %}
+            Aberto - Atendido Parcialmente
+        {% elif request.GET.status == 'CLOSE' %}
+            Finalizado - Atendido
+        {% elif request.GET.status == 'CLOSE2' %}
+            Finalizado - Não Atendido
+        {% elif request.GET.status == 'CANCEL' %}
+            Cancelado
+        {% endif %}
+    </span>
+    {% endif %}
+    {% if request.GET.order_type %}
+    <span class="badge badge-type {{ request.GET.order_type|lower }}">
+        <i class="bi bi-tag-fill me-1"></i>Tipo: {{ request.GET.order_type }}
+    </span>
+    {% endif %}
+</div>
+{% endif %}
+
+<!-- Orders Table -->
+<div class="table-container">
+    {% if orders %}
+        <div class="table-responsive">
+            <table class="table table-dark table-hover mb-0">
+                <thead>
+                    <tr>
+                        <th><i class="bi bi-hash me-2"></i>Nº Pedido</th>
+                        <th><i class="bi bi-calendar-event me-2"></i>Data</th>
+                        <th><i class="bi bi-person-circle me-2"></i>Pedido Operador</th>
+                        <th><i class="bi bi-card-checklist me-2"></i>Itens</th>
+                        <th><i class="bi bi-tag-fill me-2"></i>Tipo</th>
+                        <th><i class="bi bi-info-circle me-2"></i>Status</th>
+                        <th width="140"><i class="bi bi-gear me-2"></i>Ações</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for order in orders %}
+                    <tr>
+                        <td>
+                            <span class="order-number-cell">
+                                <i class="bi bi-receipt me-1"></i>{{ order.order_year }}-{{ order.order_number }}
+                            </span>
+                        </td>
+                        <td>
+                            <div class="date-cell">
+                                <span class="date">
+                                    <i class="bi bi-calendar3"></i>
+                                    {{ order.order_date|date:"d/m/Y" }}
+                                </span>
+                            </div>
+                        </td>
+                        <td>
+                            <div class="requester-cell">
+                                <span>
+                                   {% if order.items.all %}
+                                    {% for item in order.items.all %}
+                                        <ul>
+                                            <li>
+                                            {{ item.operator }}
+                                            </li>
+                                        </ul>
+                                    {% endfor %}
+                                    {% else %}
+                                    —
+                                   {% endif %}
+                                </span>
+                            </div>
+                        </td>
+                        <td>
+                        {% if order.items.all %}
+                            <ul>
+                                {% for item in order.items.all %}
+                                <li>
+                                    {% if item.inventory_item %}
+                                    {{ item.inventory_item.item.name }} - {{ item.inventory_item.item.mpn }}
+                                    {% elif item.item_item %}
+                                    {{ item.item_item.name }} - {{ item.item_item.mpn }}
+                                    {% else %}
+                                    — 
+                                    {% endif %}
+                                </li>
+                                {% endfor %}
+                            </ul>
+                            {% else %}
+                            —
+                            {% endif %}
+                        </td>
+                        <td>
+                            <span class="badge badge-type {{ order.order_type|lower }}">
+                                {% if order.order_type == 'RMS' %}
+                                    <i class="bi bi-wrench-adjustable me-1"></i>
+                                {% else %}
+                                    <i class="bi bi-tools me-1"></i>
+                                {% endif %}
+                                {{ order.order_type }}
+                            </span>
+                        </td>
+                        <td>
+                            <span class="badge badge-status {{ order.status|default:''|lower }}">
+                                {% if order.status|upper == 'NOT' %}
+                                    <i class="bi bi-send-slash me-1"></i>Não Enviado
+                                {% elif order.status|upper == 'OPEN' %}
+                                    <i class="bi bi-unlock-fill me-1"></i>Aberto - Não Atendido
+                                {% elif order.status|upper == 'OPEN2' %}
+                                    <i class="bi bi-unlock-fill me-1"></i>Aberto - Atendido Parcialmente
+                                {% elif order.status|upper == 'CLOSE' %}
+                                    <i class="bi bi-lock-fill me-1"></i>Finalizado - Atendido
+                                {% elif order.status|upper == 'CLOSE2' %}
+                                    <i class="bi bi-x-circle-fill me-1"></i>Finalizado - Não Atendido
+                                {% else %}
+                                    <i class="bi bi-x-circle-fill me-1"></i>Cancelado
+                                {% endif %}
+                            </span>
+                        </td>
+
+                        <td>
+                            <div class="d-flex gap-1">
+                                {% if perms.order.view_order %}
+                                <a href="{% url 'order_detail' order.id %}" 
+                                   class="btn btn-info btn-action" 
+                                   title="Ver detalhes"
+                                   data-bs-toggle="tooltip">
+                                    <i class="bi bi-eye-fill"></i>
+                                </a>
+                                {% endif %}
+                                {% if perms.order.change_order %}
+                                <a href="{% url 'order_update' order.id %}" 
+                                   class="btn btn-warning btn-action" 
+                                   title="Editar"
+                                   data-bs-toggle="tooltip">
+                                    <i class="bi bi-pencil-fill"></i>
+                                </a>
+                                {% endif %}
+                                {% if perms.order.delete_order %}
+                                <a href="{% url 'order_delete' order.id %}" 
+                                   class="btn btn-danger btn-action" 
+                                   title="Excluir"
+                                   data-bs-toggle="tooltip"
+                                   onclick="return confirm('Tem certeza que deseja excluir o pedido {{ order.order_number }}?')">
+                                    <i class="bi bi-trash-fill"></i>
+                                </a>
+                                {% endif %}
+                                <a href="{% url 'order_export_archive' order.id %}" 
+                                   class="btn btn-success btn-action" 
+                                   title="Download"
+                                   data-bs-toggle="tooltip">
+                                    <i class="bi bi-box-arrow-down"></i>
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    {% else %}
+        <div class="text-center py-5">
+            <i class="bi bi-inbox display-1 text-muted mb-3" style="font-size: 5rem; animation: float 3s ease-in-out infinite;"></i>
+            <h4 class="text-muted">Nenhum pedido encontrado</h4>
+            <p class="text-muted">
+                {% if request.GET.search or request.GET.status or request.GET.order_type %}
+                    Tente ajustar os filtros ou 
+                    <a href="{% url 'order_list' %}" class="text-decoration-none" style="color: #667eea;">limpar todos os filtros</a>
+                {% else %}
+                    Comece adicionando um novo pedido ao sistema
+                {% endif %}
+            </p>
+            {% if not request.GET.search and not request.GET.status and not request.GET.order_type %}
+                <a href="{% url 'order_create' %}" class="btn btn-success">
+                    <i class="bi bi-plus-lg me-2"></i>Adicionar Primeiro Pedido
+                </a>
+            {% endif %}
+        </div>
+    {% endif %}
+</div>
+
+<!-- Pagination -->
+{% include 'components/_pagination.html' %}
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Inicializar tooltips
+    const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+    tooltipTriggerList.map(function (tooltipTriggerEl) {
+        return new bootstrap.Tooltip(tooltipTriggerEl);
+    });
+});
+</script>
+{% endblock %}

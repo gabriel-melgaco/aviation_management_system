@@ -1,0 +1,398 @@
+<!-- item_list.html -->
+{% extends 'base.html' %}
+{% load static %}
+
+{% block extra_css %}
+<link href="{% static 'css/inflow_list.css' %}" rel="stylesheet">
+
+{% endblock %}
+
+{% block title %}
+SGS 1º BAvEx - Gestão de Itens
+{% endblock %}
+
+{% block content %}
+<!-- Page Header -->
+<div class="page-header">
+    <div class="d-flex justify-content-between align-items-center">
+        <div>
+            <h1 class="fw-bold mb-2">
+                <i class="bi bi-arrow-down-left-square me-3"></i>Entradas de Itens em Estoque
+            </h1>
+        </div>
+        <div class="d-flex gap-3">
+            <button class="btn btn-outline-info" type="button" data-bs-toggle="collapse" data-bs-target="#filterCollapse">
+                <i class="bi bi-funnel me-2"></i>Filtros Avançados
+                {% if request.GET.date_from or request.GET.date_to %}
+                    <span class="badge bg-info ms-1">Ativo</span>
+                {% endif %}
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Search and Actions -->
+<div class="row mb-4">
+    <div class="col-lg-8">
+        <div class="search-container">
+            <form method="get" action="{% url 'inflow_list' %}">
+                <div class="input-group">
+                    <span class="input-group-text bg-transparent border-0">
+                        <i class="bi bi-search text-muted"></i>
+                    </span>
+                    <input type="text" 
+                           class="form-control bg-transparent border-0" 
+                           name="search" 
+                           placeholder="Buscar por MPN, PN, nome, descrição..." 
+                           value="{{ request.GET.search }}"
+                           style="box-shadow: none; color: #ffffff;">
+                    <!-- Manter filtros de data na busca rápida -->
+                    {% if request.GET.date_from %}
+                        <input type="hidden" name="date_from" value="{{ request.GET.date_from }}">
+                    {% endif %}
+                    {% if request.GET.date_to %}
+                        <input type="hidden" name="date_to" value="{{ request.GET.date_to }}">
+                    {% endif %}
+                    <button type="submit" class="btn btn-primary px-4">
+                        <i class="bi bi-search me-2"></i>Buscar
+                    </button>
+                    {% if request.GET.search %}
+                        <a href="{% url 'inflow_list' %}{% if request.GET.date_from or request.GET.date_to %}?{% if request.GET.date_from %}date_from={{ request.GET.date_from }}{% endif %}{% if request.GET.date_to %}{% if request.GET.date_from %}&{% endif %}date_to={{ request.GET.date_to }}{% endif %}{% endif %}" class="btn btn-outline-secondary">
+                            <i class="bi bi-x-lg"></i>
+                        </a>
+                    {% endif %}
+                </div>
+            </form>
+        </div>
+    </div>
+    <div class="col-lg-4">
+        {% if perms.inflow.add_inflow %}
+        <div class="d-flex gap-2 justify-content-end">
+            <a href="{% url 'inflow_create' %}" class="btn btn-success px-4">
+                <i class="bi bi-plus-lg me-2"></i>Nova Entrada
+            </a>
+        {% endif %}
+            <div class="dropdown">
+                <button class="btn btn-outline-primary dropdown-toggle" data-bs-toggle="dropdown">
+                    <i class="bi bi-three-dots"></i>
+                </button>
+                <ul class="dropdown-menu dropdown-menu-end dropdown-menu-dark">
+                    <li><a class="dropdown-item" href="#">
+                        <i class="bi bi-download me-2"></i>Exportar Excel
+                    </a></li>
+                    <li><a class="dropdown-item" href="#">
+                        <i class="bi bi-file-pdf me-2"></i>Exportar PDF
+                    </a></li>
+                    <li><hr class="dropdown-divider"></li>
+                    <li><a class="dropdown-item" href="#">
+                        <i class="bi bi-upload me-2"></i>Importar Dados
+                    </a></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Advanced Filters -->
+<div class="collapse {% if request.GET.date_from or request.GET.date_to %}show{% endif %}" id="filterCollapse">
+    <div class="filter-container">
+        <form method="get" action="{% url 'inflow_list' %}" id="filterForm">
+            <div class="row">
+                <!-- Search Field (mantém o valor existente) -->
+                <div class="col-md-4">
+                    <label class="filter-label">
+                        <i class="bi bi-search me-1"></i>Buscar
+                    </label>
+                    <input type="text" 
+                           class="form-control date-filter-input" 
+                           name="search" 
+                           placeholder="MPN, PN, nome, descrição..." 
+                           value="{{ request.GET.search }}">
+                </div>
+                
+                <!-- Data Inicial -->
+                <div class="col-md-3">
+                    <label class="filter-label">
+                        <i class="bi bi-calendar-event me-1"></i>Data Inicial
+                    </label>
+                    <input type="date" 
+                           class="form-control date-filter-input" 
+                           name="date_from" 
+                           value="{{ request.GET.date_from }}"
+                           id="dateFrom">
+                </div>
+                
+                <!-- Data Final -->
+                <div class="col-md-3">
+                    <label class="filter-label">
+                        <i class="bi bi-calendar-check me-1"></i>Data Final
+                    </label>
+                    <input type="date" 
+                           class="form-control date-filter-input" 
+                           name="date_to" 
+                           value="{{ request.GET.date_to }}"
+                           id="dateTo">
+                </div>
+                
+                <!-- Ações -->
+                <div class="col-md-2">
+                    <label class="filter-label">&nbsp;</label>
+                    <div class="filter-actions d-flex flex-column">
+                        <button type="submit" class="btn btn-primary mb-2">
+                            <i class="bi bi-funnel me-1"></i>Filtrar
+                        </button>
+                        <a href="{% url 'inflow_list' %}" class="btn btn-outline-secondary btn-sm">
+                            <i class="bi bi-arrow-clockwise me-1"></i>Limpar
+                        </a>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Filtros Rápidos -->
+            <div class="row mt-3">
+                <div class="col-12">
+                    <label class="filter-label">
+                        <i class="bi bi-lightning me-1"></i>Filtros Rápidos
+                    </label>
+                    <div class="d-flex gap-2 flex-wrap">
+                        <button type="button" class="quick-filter-btn" data-period="today">Hoje</button>
+                        <button type="button" class="quick-filter-btn" data-period="yesterday">Ontem</button>
+                        <button type="button" class="quick-filter-btn" data-period="week">Esta Semana</button>
+                        <button type="button" class="quick-filter-btn" data-period="month">Este Mês</button>
+                        <button type="button" class="quick-filter-btn" data-period="quarter">Este Trimestre</button>
+                        <button type="button" class="quick-filter-btn" data-period="year">Este Ano</button>
+                        <button type="button" class="quick-filter-btn" data-period="last30">Últimos 30 dias</button>
+                        <button type="button" class="quick-filter-btn" data-period="last90">Últimos 90 dias</button>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Active Filters Display -->
+{% if request.GET.search or request.GET.date_from or request.GET.date_to %}
+<div class="active-filters">
+    <div class="d-flex align-items-center justify-content-between">
+        <div>
+            <i class="bi bi-funnel-fill me-2"></i>
+            <strong>Filtros Ativos:</strong>
+            {% if request.GET.search %}
+                <span class="badge bg-primary ms-2">Busca: "{{ request.GET.search }}"</span>
+            {% endif %}
+            {% if request.GET.date_from %}
+                <span class="badge bg-info ms-2">De: {{ request.GET.date_from }}</span>
+            {% endif %}
+            {% if request.GET.date_to %}
+                <span class="badge bg-info ms-2">Até: {{ request.GET.date_to }}</span>
+            {% endif %}
+            <span class="text-muted ms-3">{{ inflows.count }} resultados encontrados</span>
+        </div>
+        <a href="{% url 'inflow_list' %}" class="btn btn-outline-light btn-sm">
+            <i class="bi bi-x-lg me-1"></i>Limpar Todos
+        </a>
+    </div>
+</div>
+{% else %}
+<!-- Search Results Info (apenas quando não há filtros avançados) -->
+{% if request.GET.search %}
+<div class="alert alert-info border-0" style="background: rgba(13, 202, 240, 0.1); border-left: 4px solid #0dcaf0 !important;">
+    <i class="bi bi-info-circle me-2"></i>
+    Encontrados <strong>{{ inflows.count }}</strong> resultados para "<strong>{{ request.GET.search }}</strong>"
+</div>
+{% endif %}
+{% endif %}
+
+<!-- Items Table -->
+<div class="table-container">
+    {% if inflows %}
+        <div class="table-responsive">
+            <table class="table table-dark table-hover mb-0">
+                <thead>
+                    <tr>
+                        <th><i class="bi bi-hash me-2"></i>Item Inventário</th>
+                        <th><i class="bi bi-tag me-2"></i>Quantidade</th>
+                        <th><i class="bi bi-box me-2"></i>Descrição</th>
+                        <th><i class="bi bi-file-text me-2"></i>Criado em</th>
+                        <th width="140"><i class="bi bi-gear me-2"></i>Ações</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for inflow in inflows %}
+                    <tr>
+                        <td>
+                            <span class="badge bg-primary">{{ inflow.item }}</span>
+                        </td>
+                        <td>{{ inflow.quantity }}</td>
+                        <td>
+                            <div class="fw-semibold">{{ inflow.description|default:"—" }}</div>
+                        </td>
+                        <td>{{ inflow.created_at|default:"—" }}</td>
+                        <td>
+                            {% if perms.inflow.view_inflow %}
+                            <div class="d-flex">
+                                <a href="{% url 'inflow_detail' inflow.id %}" 
+                                   class="btn btn-info btn-action" 
+                                   title="Ver detalhes">
+                                    <i class="bi bi-eye"></i>
+                                </a>
+                            </div>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    {% else %}
+        <div class="text-center py-5">
+            <i class="bi bi-inbox display-1 text-muted mb-3"></i>
+            <h4 class="text-muted">Nenhum item encontrado</h4>
+            <p class="text-muted">
+                {% if request.GET.search or request.GET.date_from or request.GET.date_to %}
+                    Tente ajustar os filtros ou 
+                    <a href="{% url 'inflow_list' %}" class="text-decoration-none">limpar todos os filtros</a>
+                {% else %}
+                    Comece adicionando uma nova entrada ao sistema
+                {% endif %}
+            </p>
+            {% if not request.GET.search and not request.GET.date_from and not request.GET.date_to %}
+                {% if perms.inflow.add_inflow %}
+                <a href="{% url 'inflow_create' %}" class="btn btn-success">
+                    <i class="bi bi-plus-lg me-2"></i>Adicionar Primeira Entrada
+                </a>
+                {% else %}
+                <i class="bi bi-plus-lg me-2"></i>Você não tem permissão para adicionar novas entradas
+                {% endif %}
+            {% endif %}
+        </div>
+    {% endif %}
+</div>
+
+<!-- Pagination -->
+{% include 'components/_pagination.html' %}
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Elementos do formulário
+    const dateFromInput = document.getElementById('dateFrom');
+    const dateToInput = document.getElementById('dateTo');
+    const quickFilterButtons = document.querySelectorAll('.quick-filter-btn');
+    const filterForm = document.getElementById('filterForm');
+    
+    // Função para formatar data no formato YYYY-MM-DD
+    function formatDate(date) {
+        const year = date.getFullYear();
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const day = String(date.getDate()).padStart(2, '0');
+        return `${year}-${month}-${day}`;
+    }
+    
+    // Função para calcular datas baseadas no período
+    function calculateDates(period) {
+        const today = new Date();
+        const startOfWeek = new Date(today);
+        const startOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
+        const startOfQuarter = new Date(today.getFullYear(), Math.floor(today.getMonth() / 3) * 3, 1);
+        const startOfYear = new Date(today.getFullYear(), 0, 1);
+        
+        let dateFrom = '';
+        let dateTo = formatDate(today);
+        
+        switch(period) {
+            case 'today':
+                dateFrom = formatDate(today);
+                dateTo = formatDate(today);
+                break;
+            case 'yesterday':
+                const yesterday = new Date(today);
+                yesterday.setDate(yesterday.getDate() - 1);
+                dateFrom = formatDate(yesterday);
+                dateTo = formatDate(yesterday);
+                break;
+            case 'week':
+                startOfWeek.setDate(today.getDate() - today.getDay());
+                dateFrom = formatDate(startOfWeek);
+                break;
+            case 'month':
+                dateFrom = formatDate(startOfMonth);
+                break;
+            case 'quarter':
+                dateFrom = formatDate(startOfQuarter);
+                break;
+            case 'year':
+                dateFrom = formatDate(startOfYear);
+                break;
+            case 'last30':
+                const last30 = new Date(today);
+                last30.setDate(today.getDate() - 30);
+                dateFrom = formatDate(last30);
+                break;
+            case 'last90':
+                const last90 = new Date(today);
+                last90.setDate(today.getDate() - 90);
+                dateFrom = formatDate(last90);
+                break;
+        }
+        
+        return { dateFrom, dateTo };
+    }
+    
+    // Event listeners para botões de filtro rápido
+    quickFilterButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            // Remove active de todos os botões
+            quickFilterButtons.forEach(btn => btn.classList.remove('active'));
+            
+            // Adiciona active ao botão clicado
+            this.classList.add('active');
+            
+            // Calcula as datas
+            const period = this.getAttribute('data-period');
+            const dates = calculateDates(period);
+            
+            // Preenche os campos
+            dateFromInput.value = dates.dateFrom;
+            dateToInput.value = dates.dateTo;
+            
+            // Submete o formulário automaticamente
+            filterForm.submit();
+        });
+    });
+    
+    // Validação de datas
+    dateFromInput.addEventListener('change', function() {
+        if (dateToInput.value && this.value > dateToInput.value) {
+            alert('A data inicial não pode ser maior que a data final.');
+            this.value = '';
+        }
+    });
+    
+    dateToInput.addEventListener('change', function() {
+        if (dateFromInput.value && this.value < dateFromInput.value) {
+            alert('A data final não pode ser menor que a data inicial.');
+            this.value = '';
+        }
+    });
+    
+    // Detectar filtro ativo pelos parâmetros da URL
+    const urlParams = new URLSearchParams(window.location.search);
+    const currentDateFrom = urlParams.get('date_from');
+    const currentDateTo = urlParams.get('date_to');
+    
+    // Marcar botão de filtro rápido como ativo se corresponder às datas atuais
+    if (currentDateFrom && currentDateTo) {
+        quickFilterButtons.forEach(button => {
+            const period = button.getAttribute('data-period');
+            const dates = calculateDates(period);
+            
+            if (dates.dateFrom === currentDateFrom && dates.dateTo === currentDateTo) {
+                button.classList.add('active');
+            }
+        });
+    }
+});
+</script>
+{% endblock %}

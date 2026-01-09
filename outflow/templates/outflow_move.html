@@ -1,0 +1,274 @@
+<!-- outflow_add.html - Adicionar saída de item -->
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Criar Saída - {{ item.item.name }} - SGS 1º BAvEx{% endblock %}
+
+{% block extra_css %}
+<link href="{% static 'css/outflow_add.css' %}" rel="stylesheet">
+
+{% endblock %}
+
+{% block content %}
+<!-- Page Header -->
+<div class="page-header">
+    <div class="d-flex justify-content-between align-items-center">
+        <div>
+            <h1 class="fw-bold mb-2">
+                <i class="bi bi-box-arrow-right me-3"></i>Registrar Saída de Item
+            </h1>
+            <p class="text-muted mb-0">Preencha os dados da movimentação de saída</p>
+        </div>
+        <div>
+            <a href="{% url 'inventory_list' %}" class="btn btn-secondary">
+                <i class="bi bi-arrow-left"></i>
+                Voltar
+            </a>
+        </div>
+    </div>
+</div>
+
+<!-- Item Information Card -->
+<div class="item-card">
+    <div class="item-card-header">
+        <div class="item-card-icon">
+            <i class="bi bi-box-seam-fill"></i>
+        </div>
+        <div class="item-card-info">
+            <h3>{{ item.item.name }}</h3>
+            <p><i class="bi bi-upc-scan me-1"></i>MPN: {{ item.item.mpn }}</p>
+        </div>
+    </div>
+    
+    <div class="item-details">
+        <div class="item-detail-box">
+            <div class="item-detail-label">
+                <i class="bi bi-pin-map-fill me-1"></i>Localização
+            </div>
+            <div class="item-detail-value">{{ item.location }}</div>
+        </div>
+        
+        <div class="item-detail-box">
+            <div class="item-detail-label">
+                <i class="bi bi-stack me-1"></i>Estoque Atual
+            </div>
+            <div class="item-detail-value">{{ item.quantity }} unidades</div>
+        </div>
+        
+        {% if item.serial_number %}
+        <div class="item-detail-box">
+            <div class="item-detail-label">
+                <i class="bi bi-upc me-1"></i>Serial Number
+            </div>
+            <div class="item-detail-value">{{ item.serial_number }}</div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Form -->
+<div class="form-container">
+    <div class="form-header">
+        <div class="d-flex align-items-center">
+            <i class="bi bi-clipboard-data-fill me-3 fs-1"></i>
+            <div>
+                <h3 class="mb-1">Dados da Saída</h3>
+                <p class="mb-0 opacity-75">Preencha todas as informações obrigatórias</p>
+            </div>
+        </div>
+    </div>
+    
+    <div class="form-body">
+        <form method="post" novalidate id="outflowForm">
+            {% csrf_token %}
+            
+            {% if form_outflow.errors %}
+                <div class="alert alert-danger">
+                    <i class="bi bi-exclamation-triangle-fill"></i>
+                    <strong>Erro no formulário:</strong>
+                    <ul class="mb-0 mt-2">
+                        {% for field in form_outflow %}
+                            {% for error in field.errors %}
+                                <li>{{ field.label }}: {{ error }}</li>
+                            {% endfor %}
+                        {% endfor %}
+                    </ul>
+                </div>
+            {% endif %}
+            
+            <div class="row">
+                <!-- Quantidade -->
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label class="form-label required-field">
+                            <i class="bi bi-hash"></i>
+                            {{ form_outflow.quantity.label }}
+                        </label>
+                        {{ form_outflow.quantity }}
+                        <small class="form-text">
+                            <i class="bi bi-info-circle"></i>
+                            {% if item.serial_number %}
+                                Item serializado - quantidade fixa = 1
+                            {% else %}
+                                Quantidade disponível: <strong>{{ item.quantity }}</strong> unidades
+                            {% endif %}
+                        </small>
+                    </div>
+                </div>
+
+                <!-- Motivo -->
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label class="form-label required-field">
+                            <i class="bi bi-tags-fill"></i>
+                            {{ form_outflow.reason.label }}
+                        </label>
+                        {{ form_outflow.reason }}
+                        <small class="form-text">
+                            <i class="bi bi-info-circle"></i>
+                            Selecione o motivo da saída
+                        </small>
+                    </div>
+                </div>
+
+                <!-- Solicitante -->
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label class="form-label required-field">
+                            <i class="bi bi-person-fill"></i>
+                            {{ form_outflow.claimant.label }}
+                        </label>
+                        {{ form_outflow.claimant }}
+                        <small class="form-text">
+                            <i class="bi bi-info-circle"></i>
+                            Nome ou setor do solicitante
+                        </small>
+                    </div>
+                </div>
+
+                <!-- Descrição -->
+                <div class="col-md-12">
+                    <div class="form-group">
+                        <label class="form-label required-field">
+                            <i class="bi bi-chat-left-text-fill"></i>
+                            {{ form_outflow.description.label }}
+                        </label>
+                        {{ form_outflow.description }}
+                        <small class="form-text">
+                            <i class="bi bi-info-circle"></i>
+                            Descreva detalhadamente o motivo da saída (ex: fornecimento para EHEG, envio para manutenção BMS, etc.)
+                        </small>
+                        <div class="char-counter" id="charCounter">0 / 500 caracteres</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="action-buttons">
+                <a href="{% url 'inventory_list' %}" class="btn btn-secondary">
+                    <i class="bi bi-x-lg"></i>
+                    Cancelar
+                </a>
+                <button type="submit" class="btn btn-danger">
+                    <i class="bi bi-check-circle-fill"></i>
+                    Registrar Saída
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.getElementById('outflowForm');
+    const quantityField = document.querySelector('[name="quantity"]');
+    const descriptionField = document.querySelector('[name="description"]');
+    const charCounter = document.getElementById('charCounter');
+    const hasSerialNumber = {{ item.serial_number|yesno:"true,false" }};
+    const maxQuantity = {{ item.quantity }};
+
+    // Configurar campo de quantidade para itens com serial number
+    if (hasSerialNumber && quantityField) {
+        quantityField.value = '1';
+        quantityField.readOnly = true;
+        quantityField.style.backgroundColor = 'rgba(255, 255, 255, 0.05)';
+        quantityField.style.cursor = 'not-allowed';
+        quantityField.style.opacity = '0.6';
+    }
+
+    // Contador de caracteres para descrição
+    if (descriptionField && charCounter) {
+        function updateCharCount() {
+            const count = descriptionField.value.length;
+            charCounter.textContent = `${count} / 500 caracteres`;
+            
+            if (count > 450) {
+                charCounter.style.color = '#ffc107';
+            } else if (count > 480) {
+                charCounter.style.color = '#dc3545';
+            } else {
+                charCounter.style.color = 'rgba(255, 255, 255, 0.5)';
+            }
+        }
+        
+        descriptionField.addEventListener('input', updateCharCount);
+        updateCharCount();
+    }
+
+    // Validação de quantidade
+    if (quantityField && !hasSerialNumber) {
+        quantityField.addEventListener('input', function() {
+            const value = parseInt(this.value) || 0;
+            
+            if (value > maxQuantity) {
+                this.setCustomValidity(`Quantidade máxima disponível: ${maxQuantity}`);
+                this.style.borderColor = '#dc3545';
+            } else if (value <= 0) {
+                this.setCustomValidity('Quantidade deve ser maior que zero');
+                this.style.borderColor = '#dc3545';
+            } else {
+                this.setCustomValidity('');
+                this.style.borderColor = '';
+            }
+        });
+    }
+
+    // Validação do formulário antes do submit
+    form.addEventListener('submit', function(e) {
+        let isValid = true;
+        const quantity = parseInt(quantityField?.value) || 0;
+
+        // Validar quantidade
+        if (!hasSerialNumber && quantity > maxQuantity) {
+            e.preventDefault();
+            alert(`Erro: Quantidade solicitada (${quantity}) excede o estoque disponível (${maxQuantity})`);
+            quantityField.focus();
+            isValid = false;
+        }
+
+        // Confirmar saída
+        if (isValid) {
+            const itemName = '{{ item.item.name }}';
+            const confirm = window.confirm(
+                `Confirmar saída de ${quantity} unidade(s) de "${itemName}"?`
+            );
+            
+            if (!confirm) {
+                e.preventDefault();
+            }
+        }
+    });
+
+    // Inicializar tooltips se Bootstrap estiver disponível
+    if (typeof bootstrap !== 'undefined') {
+        const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+        tooltipTriggerList.map(function (tooltipTriggerEl) {
+            return new bootstrap.Tooltip(tooltipTriggerEl);
+        });
+    }
+});
+</script>
+
+{% endblock %}
