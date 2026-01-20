@@ -32,7 +32,7 @@ class Order(models.Model):
     order_date = models.DateField("Data do Pedido", null=True, blank=True)
     requester = models.CharField("Solicitante", choices=REQUESTER_CHOICES, max_length=500, null=True, blank=True)
     order_type = models.CharField("Tipo de Pedido", choices=ORDER_TYPE_CHOICES, max_length=500, null=True, blank=True)
-    status = models.CharField("Status", choices=STATUS_CHOICES, max_length=500, null=True, blank=True)
+    status = models.TextField("Status", choices=STATUS_CHOICES, max_length=500, null=True, blank=True)
     notes = models.TextField("Observações", blank=True, null=True)
 
     created_by = models.ForeignKey(
@@ -88,9 +88,9 @@ class OrderItem(models.Model):
     nf_answer = models.CharField("Nota Fiscal de Atendimento", max_length=500, null=True, blank=True)
     attended_date = models.DateField("Data de Atendimento", null=True, blank=True)
     collected = models.BooleanField("Coletado", default=False)
-    gmm = models.CharField(max_length=500, null=True, blank=True)
-    bms = models.CharField(max_length=500, null=True, blank=True)
-    hb_destination = models.CharField("Destino HB", max_length=500, null=True, blank=True)
+    gmm = models.TextField(max_length=500, null=True, blank=True)
+    bms = models.TextField(max_length=500, null=True, blank=True)
+    hb_destination = models.TextField("Destino HB", max_length=500, null=True, blank=True)
     contract_old = models.BooleanField("Contrato Anterior (013)?", default=False)
     reason = models.TextField("Motivo", null=True, blank=True)
     troubleshooting = models.TextField("Ação de Troubleshooting", null=True, blank=True)
