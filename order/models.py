@@ -31,8 +31,8 @@ class Order(models.Model):
     order_year = models.IntegerField("Ano do Pedido", null=True, blank=True)
     order_date = models.DateField("Data do Pedido", null=True, blank=True)
     requester = models.CharField("Solicitante", choices=REQUESTER_CHOICES, max_length=255, null=True, blank=True)
-    order_type = models.CharField("Tipo de Pedido", choices=ORDER_TYPE_CHOICES, max_length=100, null=True, blank=True)
-    status = models.CharField("Status", choices=STATUS_CHOICES, max_length=100, null=True, blank=True)
+    order_type = models.CharField("Tipo de Pedido", choices=ORDER_TYPE_CHOICES, max_length=500, null=True, blank=True)
+    status = models.CharField("Status", choices=STATUS_CHOICES, max_length=500, null=True, blank=True)
     notes = models.TextField("Observações", blank=True, null=True)
 
     created_by = models.ForeignKey(
@@ -76,7 +76,7 @@ class OrderItem(models.Model):
     aircraft_destination = models.ForeignKey(
         Aircraft, on_delete=models.SET_NULL, null=True, blank=True, related_name="order_items_aircraft_destination"
     )
-    operator = models.CharField("Operador Pedido", max_length=100, null=True, blank=True)
+    operator = models.CharField("Operador Pedido", max_length=200, null=True, blank=True)
     service_type = models.CharField("Tipo de Atendimento", choices=SERVICE_TYPE_CHOICES ,max_length=100, null=True, blank=True)
     quantity = models.PositiveIntegerField("Quantidade", default=1)
     quantity_supplied = models.PositiveIntegerField("Quantidade Fornecida", null=True, blank=True)
