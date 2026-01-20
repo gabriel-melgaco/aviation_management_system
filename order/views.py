@@ -12,9 +12,7 @@ from django.shortcuts import redirect
 from openpyxl import load_workbook
 from django.http import FileResponse
 from io import BytesIO
-
-
-
+from datetime import datetime
 
 
 class OrderListView(LoginRequiredMixin, PermissionRequiredMixin, ListView):
@@ -26,10 +24,10 @@ class OrderListView(LoginRequiredMixin, PermissionRequiredMixin, ListView):
 
     def get_queryset(self):
         queryset = models.Order.objects.all().prefetch_related(
-            'items',  # OrderItems relacionados
-            'items__inventory_item',  # Item de inventário
-            'items__inventory_item__item',  # Item dentro do inventário
-            'items__item_item',  # Item FMS direto
+            'items',
+            'items__inventory_item',
+            'items__inventory_item__item',
+            'items__item_item',
         ).select_related(
             'created_by',
             'updated_by'
@@ -43,32 +41,47 @@ class OrderListView(LoginRequiredMixin, PermissionRequiredMixin, ListView):
                 Q(order_year__icontains=search) |
                 Q(requester__icontains=search) |
                 Q(notes__icontains=search) |
-                # Busca nos OrderItems - Item de Inventário
                 Q(items__inventory_item__item__name__icontains=search) |
                 Q(items__inventory_item__item__mpn__icontains=search) |
                 Q(items__inventory_item__item__pn__icontains=search) |
-                # Busca nos OrderItems - Item FMS
                 Q(items__item_item__name__icontains=search) |
                 Q(items__item_item__mpn__icontains=search) |
                 Q(items__item_item__pn__icontains=search) |
-                # Busca por outros campos de OrderItem
                 Q(items__dpe__icontains=search) |
                 Q(items__eglog__icontains=search) |
                 Q(items__log__icontains=search) |
                 Q(items__operator__icontains=search)
-            ).distinct().order_by('-order_date')
+            ).distinct()
 
         # Filtro por status
         status = self.request.GET.get('status', '').strip()
         if status:
-            queryset = queryset.filter(status=status).order_by('-order_date')
+            queryset = queryset.filter(status=status)
 
         # Filtro por tipo de pedido
         order_type = self.request.GET.get('order_type', '').strip()
         if order_type:
-            queryset = queryset.filter(order_type=order_type).order_by('-order_date')
+            queryset = queryset.filter(order_type=order_type)
 
-        return queryset
+        # Filtro por período de datas
+        date_from = self.request.GET.get('date_from', '').strip()
+        date_to = self.request.GET.get('date_to', '').strip()
+        
+        if date_from:
+            try:
+                date_from_obj = datetime.strptime(date_from, '%Y-%m-%d').date()
+                queryset = queryset.filter(order_date__gte=date_from_obj)
+            except ValueError:
+                pass
+        
+        if date_to:
+            try:
+                date_to_obj = datetime.strptime(date_to, '%Y-%m-%d').date()
+                queryset = queryset.filter(order_date__lte=date_to_obj)
+            except ValueError:
+                pass
+
+        return queryset.order_by('-order_date')
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -81,17 +94,17 @@ class OrderListView(LoginRequiredMixin, PermissionRequiredMixin, ListView):
         context['closed_orders'] = all_orders.filter(status='CLOSE').count()
         context['rms_orders'] = all_orders.filter(order_type='RMS').count()
         context['fsm_orders'] = all_orders.filter(order_type='FSM').count()
-
         
         # Adicionar filtros ativos
         context['active_filters'] = {
             'search': self.request.GET.get('search', ''),
             'status': self.request.GET.get('status', ''),
             'order_type': self.request.GET.get('order_type', ''),
+            'date_from': self.request.GET.get('date_from', ''),
+            'date_to': self.request.GET.get('date_to', ''),
         }
         
         return context
-
 
 class OrderCreateView(LoginRequiredMixin, PermissionRequiredMixin, CreateView):
     model = models.Order

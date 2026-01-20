@@ -88,7 +88,7 @@ SGS 1º BAvEx - Pedidos
             <form method="get" action="{% url 'order_list' %}">
                 <div class="row g-3">
                     <!-- Busca -->
-                    <div class="col-md-4">
+                    <div class="col-md-3">
                         <div class="input-group">
                             <span class="input-group-text bg-transparent border-0">
                                 <i class="bi bi-search text-muted"></i>
@@ -124,14 +124,38 @@ SGS 1º BAvEx - Pedidos
                         </select>
                     </div>
 
+                    <!-- Data Inicial -->
+                    <div class="col-md-2">
+                        <input type="date" 
+                               class="filter-select form-control" 
+                               name="date_from" 
+                               value="{{ request.GET.date_from }}"
+                               placeholder="Data Inicial">
+                    </div>
+
+                    <!-- Data Final -->
+                    <div class="col-md-2">
+                        <input type="date" 
+                               class="filter-select form-control" 
+                               name="date_to" 
+                               value="{{ request.GET.date_to }}"
+                               placeholder="Data Final">
+                    </div>
+
                     <!-- Botões -->
-                    <div class="col-md-4 d-flex gap-2">
-                        <button type="submit" class="btn btn-primary flex-fill">
-                            <i class="bi bi-search me-2"></i>Buscar
+                    <div class="col-md-1 d-flex gap-2">
+                        <button type="submit" class="btn btn-primary w-100" title="Buscar" data-bs-toggle="tooltip">
+                            <i class="bi bi-search"></i>
                         </button>
-                        {% if request.GET.search or request.GET.status or request.GET.order_type %}
+                    </div>
+                </div>
+
+                <!-- Segunda linha de botões -->
+                <div class="row g-3 mt-2">
+                    <div class="col-12 d-flex gap-2 justify-content-end">
+                        {% if request.GET.search or request.GET.status or request.GET.order_type or request.GET.date_from or request.GET.date_to %}
                         <a href="{% url 'order_list' %}" class="btn btn-outline-secondary">
-                            <i class="bi bi-x-lg"></i>
+                            <i class="bi bi-x-lg me-2"></i>Limpar Filtros
                         </a>
                         {% endif %}
                         {% if perms.order.add_order %}
@@ -147,7 +171,7 @@ SGS 1º BAvEx - Pedidos
 </div>
 
 <!-- Active Filters -->
-{% if request.GET.search or request.GET.status or request.GET.order_type %}
+{% if request.GET.search or request.GET.status or request.GET.order_type or request.GET.date_from or request.GET.date_to %}
 <div class="mb-3 d-flex gap-2 flex-wrap">
     {% if request.GET.search %}
     <span class="badge bg-primary" style="padding: 0.5rem 0.875rem; font-size: 0.875rem;">
@@ -176,6 +200,16 @@ SGS 1º BAvEx - Pedidos
     {% if request.GET.order_type %}
     <span class="badge badge-type {{ request.GET.order_type|lower }}">
         <i class="bi bi-tag-fill me-1"></i>Tipo: {{ request.GET.order_type }}
+    </span>
+    {% endif %}
+    {% if request.GET.date_from %}
+    <span class="badge bg-info" style="padding: 0.5rem 0.875rem; font-size: 0.875rem;">
+        <i class="bi bi-calendar-event me-1"></i>De: {{ request.GET.date_from|date:"d/m/Y" }}
+    </span>
+    {% endif %}
+    {% if request.GET.date_to %}
+    <span class="badge bg-info" style="padding: 0.5rem 0.875rem; font-size: 0.875rem;">
+        <i class="bi bi-calendar-event me-1"></i>Até: {{ request.GET.date_to|date:"d/m/Y" }}
     </span>
     {% endif %}
 </div>
@@ -322,14 +356,14 @@ SGS 1º BAvEx - Pedidos
             <i class="bi bi-inbox display-1 text-muted mb-3" style="font-size: 5rem; animation: float 3s ease-in-out infinite;"></i>
             <h4 class="text-muted">Nenhum pedido encontrado</h4>
             <p class="text-muted">
-                {% if request.GET.search or request.GET.status or request.GET.order_type %}
+                {% if request.GET.search or request.GET.status or request.GET.order_type or request.GET.order_date %}
                     Tente ajustar os filtros ou 
                     <a href="{% url 'order_list' %}" class="text-decoration-none" style="color: #667eea;">limpar todos os filtros</a>
                 {% else %}
                     Comece adicionando um novo pedido ao sistema
                 {% endif %}
             </p>
-            {% if not request.GET.search and not request.GET.status and not request.GET.order_type %}
+            {% if not request.GET.search and not request.GET.status and not request.GET.order_type and not request.GET.order_date %}
                 <a href="{% url 'order_create' %}" class="btn btn-success">
                     <i class="bi bi-plus-lg me-2"></i>Adicionar Primeiro Pedido
                 </a>
