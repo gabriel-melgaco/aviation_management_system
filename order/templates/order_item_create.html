@@ -368,6 +368,20 @@
                         <div class="form-group">
                             <label class="form-label">
                                 <i class="bi bi-speedometer"></i>
+                                {{ form.aircraft_tsn.label }}
+                            </label>
+                            {{ form.aircraft_tsn }}
+                            <small class="form-text">
+                                <i class="bi bi-info-circle"></i>
+                                Total de horas (Time Since New)
+                            </small>
+                        </div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label class="form-label">
+                                <i class="bi bi-speedometer"></i>
                                 {{ form.tsn_item.label }}
                             </label>
                             {{ form.tsn_item }}

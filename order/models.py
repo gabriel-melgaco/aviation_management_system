@@ -96,6 +96,7 @@ class OrderItem(models.Model):
     troubleshooting = models.TextField("Ação de Troubleshooting", null=True, blank=True)
     failure_description = models.TextField("Descrição da Falha", null=True, blank=True)
     observation = models.TextField("Observação do Item", null=True, blank=True)
+    aircraft_tsn = models.DecimalField(max_digits=20, decimal_places=2, null=True, blank=True)
     notes = models.TextField("Anotações sobre o Item", null=True, blank=True)
     created_by = models.ForeignKey(
         User, on_delete=models.SET_NULL, null=True, blank=True, related_name="order_items_created"

@@ -62,6 +62,7 @@ class OrderItemForm(forms.ModelForm):
             'reason',
             'troubleshooting',
             'failure_description',
+            'aircraft_tsn',
             'tsn_item',
             'tso_item',
         ]
@@ -100,6 +101,7 @@ class OrderItemForm(forms.ModelForm):
             'failure_description': forms.Textarea(attrs={'class': 'form-control', 'rows': 3}),
             'tsn_item': forms.NumberInput(attrs={'class': 'form-control', 'step': '0.01'}),
             'tso_item': forms.NumberInput(attrs={'class': 'form-control', 'step': '0.01'}),
+            'aircraft_tsn': forms.NumberInput(attrs={'class': 'form-control', 'step': '0.01'}),
         }
 
         labels = {
@@ -130,6 +132,7 @@ class OrderItemForm(forms.ModelForm):
             'failure_description': 'Descrição da Falha',
             'tsn_item': 'TSN do Item',
             'tso_item': 'TSO do Item',
+            'aircraft_tsn': 'TSN da Aeronave',
         }
 
     def clean(self):

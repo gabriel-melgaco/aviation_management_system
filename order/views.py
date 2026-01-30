@@ -345,7 +345,7 @@ class OrderExportArchive(LoginRequiredMixin, PermissionRequiredMixin, View):
             ws.cell(row=linha, column=15, value=item.inventory_item.serial_number if item.inventory_item else '')
             
             # Coluna 16: TSN Anv
-            ws.cell(row=linha, column=16, value=item.aircraft.tsn if item.aircraft and item.aircraft.tsn else '')
+            ws.cell(row=linha, column=16, value=item.aircraft_tsn if item.aircraft_tsn else '')
 
             # Coluna 17: Vencimento, SFC
             ws.cell(row=linha, column=17, value=item.inventory_item.expiration_date.date() if item.inventory_item else '')
