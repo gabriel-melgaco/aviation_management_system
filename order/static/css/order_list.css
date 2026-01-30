@@ -237,6 +237,10 @@ background: linear-gradient(135deg, #ffc107 0%, #ff9800 100%);
 background: linear-gradient(135deg, #17a2b8 0%, #138496 100%);
 }
 
+.stat-card-order.req::before {
+background: linear-gradient(135deg, #056e1c 0%, #056e1c 100%);
+}
+
 .badge-status {
 padding: 0.5rem 0.875rem;
 font-size: 0.8125rem;
@@ -294,6 +298,11 @@ color: #000;
 
 .badge-type.fsm {
 background: linear-gradient(135deg, #17a2b8 0%, #138496 100%);
+color: #fff;
+}
+
+.badge-type.req {
+background: linear-gradient(135deg, #056e1c 0%, #056e1c 100%);
 color: #fff;
 }
 

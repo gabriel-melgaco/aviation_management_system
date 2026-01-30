@@ -121,6 +121,7 @@ SGS 1º BAvEx - Pedidos
                             <option value="">Todos Tipos</option>
                             <option value="RMS" {% if request.GET.order_type == 'RMS' %}selected{% endif %}>RMS</option>
                             <option value="FSM" {% if request.GET.order_type == 'FSM' %}selected{% endif %}>FSM</option>
+                            <option value="REQ" {% if request.GET.order_type == 'REQ' %}selected{% endif %}>REQ</option>
                         </select>
                     </div>
 
