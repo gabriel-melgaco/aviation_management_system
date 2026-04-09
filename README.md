@@ -1,4 +1,4 @@
-# SGE — Sistema de Gestão de Estoque
+# SGE — Sistema de Gestão de Estoque de Aviação
 
 Sistema de gerenciamento de estoque e pedidos desenvolvido para o **Batalhão de Aviação do Exército**. Permite controle completo de inventário de peças aeronáuticas, rastreamento de pedidos de manutenção e movimentação de materiais.
 
